@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Verifikasi Klaim - U-Find</title>
+    <link rel="icon" href="../assets/img/favicon.ico?v=2" type="image/x-icon" />
+    <link rel="stylesheet" href="../css/AdminShared.css" />
+    <link rel="stylesheet" href="../css/VerifikasiKlaim.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  </head>
+  <body>
+    <nav class="navbar">
+      <div class="nav-left">
+        <img src="../assets/img/logo_unikom.png" alt="Logo" class="nav-logo" />
+        <span class="nav-title">U-Find</span>
+      </div>
+      <div class="nav-right">
+        <div class="profile-menu">
+          <button type="button" class="profile-trigger" id="profileTrigger">
+            <span class="username">Pengguna</span>
+            <i class="fa-solid fa-circle-user profile-icon"></i>
+            <i class="fa-solid fa-chevron-down chevron-icon"></i>
+          </button>
+          <div class="profile-dropdown" id="profileDropdown">
+            <a
+              href="#"
+              class="dropdown-item dropdown-item-danger"
+              id="logoutBtn"
+            >
+              <i class="fa-solid fa-right-from-bracket"></i>
+              <span>Keluar</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <div class="main-container">
+      <div class="tabs-container">
+        <a href="DaftarValidasiLaporan.html" class="tab-btn"
+          >Daftar Validasi Laporan</a
+        >
+        <a href="PemantauanStatus.html" class="tab-btn">Pemantauan Status</a>
+        <a href="#" class="tab-btn active">Verifikasi Klaim</a>
+        <a href="RekapitulasiLaporan.html" class="tab-btn"
+          >Rekapitulasi Laporan</a
+        >
+      </div>
+
+      <div class="split-table-container">
+        <!-- Barang Temuan yang statusnya sudah "searching" (siap diklaim) -->
+        <div class="table-section half-width">
+          <h2 class="section-title">Barang Temuan Tersedia</h2>
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>No</th>
+                  <th>Waktu</th>
+                  <th>Penemu</th>
+                  <th>No HP</th>
+                  <th>Nama Barang</th>
+                  <th>Gambar</th>
+                </tr>
+              </thead>
+              <tbody id="temuanBody">
+                <tr class="empty-row">
+                  <td colspan="6">Memuat data...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Pengajuan Klaim yang menunggu verifikasi -->
+        <div class="table-section half-width">
+          <h2 class="section-title">Pengajuan Klaim (Menunggu Verifikasi)</h2>
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>Barang</th>
+                  <th>Pengklaim</th>
+                  <th>No HP</th>
+                  <th>Bukti Kepemilikan</th>
+                  <th>Konfirmasi</th>
+                </tr>
+              </thead>
+              <tbody id="klaimBody">
+                <tr class="empty-row">
+                  <td colspan="5">Memuat data...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Penolakan Klaim -->
+    <div id="rejectKlaimModal" class="modal-overlay">
+      <div class="modal-box">
+        <div class="modal-header">
+          <h3>Tolak Pengajuan Klaim</h3>
+          <i
+            class="fa-solid fa-xmark close-icon"
+            id="closeRejectKlaimModal"
+          ></i>
+        </div>
+        <div class="modal-body">
+          <textarea
+            id="rejectKlaimReason"
+            placeholder="Isi alasan mengapa klaim ditolak"
+          ></textarea>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-modal-dark btn-outline" id="cancelRejectKlaimBtn">
+            Batal
+          </button>
+          <button class="btn-modal-dark" id="submitRejectKlaimBtn">
+            Kirim
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script src="../js/AdminAuth.js"></script>
+    <script src="../js/VerifikasiKlaim.js"></script>
+  </body>
+</html>

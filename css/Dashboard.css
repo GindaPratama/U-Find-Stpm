@@ -216,10 +216,9 @@ body {
   border-radius: 0;
   border: none;
   box-shadow: none;
-  padding: 44px 52px;
+  padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 44px;
 }
 
 /* --- MENU BAR (horizontal, di bawah navbar) --- */
@@ -256,7 +255,7 @@ body {
   transform: translateY(-2px);
 }
 
-/* --- WELCOME CENTER (dalam dashboard-card besar) --- */
+/* --- WELCOME CENTER: full putih polos, mengisi seluruh sisa layar --- */
 .welcome-center {
   flex: 1;
   display: flex;
@@ -265,13 +264,7 @@ body {
   justify-content: center;
   text-align: center;
   gap: 18px;
-  border: 1.5px solid var(--border);
-  border-radius: 16px;
-  background: radial-gradient(
-    circle at 50% 30%,
-    rgba(47, 111, 209, 0.08),
-    transparent 60%
-  );
+  background-color: #ffffff;
   padding: 60px 32px;
 }
 
@@ -319,9 +312,6 @@ body {
   }
   .welcome-logo-center {
     width: 110px;
-  }
-  .dashboard-card {
-    padding: 28px 20px;
   }
   .username {
     display: none;

@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pemantauan Status - U-Find</title>
+    <link rel="icon" href="../assets/img/favicon.ico?v=2" type="image/x-icon" />
+    <link rel="stylesheet" href="../css/AdminShared.css" />
+    <link rel="stylesheet" href="../css/PemantauanStatus.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  </head>
+
+  <body>
+    <nav class="navbar">
+      <div class="nav-left">
+        <img src="../assets/img/logo_unikom.png" alt="Logo" class="nav-logo" />
+        <span class="nav-title">U-Find</span>
+      </div>
+      <div class="nav-right">
+        <div class="profile-menu">
+          <button type="button" class="profile-trigger" id="profileTrigger">
+            <span class="username">Pengguna</span>
+            <i class="fa-solid fa-circle-user profile-icon"></i>
+            <i class="fa-solid fa-chevron-down chevron-icon"></i>
+          </button>
+          <div class="profile-dropdown" id="profileDropdown">
+            <a
+              href="#"
+              class="dropdown-item dropdown-item-danger"
+              id="logoutBtn"
+            >
+              <i class="fa-solid fa-right-from-bracket"></i>
+              <span>Keluar</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <div class="main-container">
+      <div class="tabs-container">
+        <a href="DaftarValidasiLaporan.html" class="tab-btn"
+          >Daftar Validasi Laporan</a
+        >
+        <a href="#" class="tab-btn active">Pemantauan Status</a>
+        <a href="VerifikasiKlaim.html" class="tab-btn">Verifikasi Klaim</a>
+        <a href="RekapitulasiLaporan.html" class="tab-btn"
+          >Rekapitulasi Laporan</a
+        >
+      </div>
+
+      <div class="table-section">
+        <div class="section-header">
+          <h2 class="section-title">Laporan Barang Hilang & Barang Temuan</h2>
+          <div class="filter-group">
+            <button class="filter-btn active" data-filter="semua">Semua</button>
+            <button class="filter-btn" data-filter="hilang">
+              Laporan Hilang
+            </button>
+            <button class="filter-btn" data-filter="temuan">
+              Laporan Temuan
+            </button>
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>No</th>
+                <th>Jenis</th>
+                <th>Waktu</th>
+                <th>Nama</th>
+                <th>No HP</th>
+                <th>Nama Barang</th>
+                <th>Gambar</th>
+                <th>Ciri-Ciri Barang</th>
+                <th>Lokasi Kejadian</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="statusBody">
+              <tr class="empty-row">
+                <td colspan="10">Memuat data...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <script src="../js/AdminAuth.js"></script>
+    <script src="../js/PemantauanStatus.js"></script>
+  </body>
+</html>
