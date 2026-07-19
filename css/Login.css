@@ -1,0 +1,349 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700&display=swap");
+
+:root {
+  --navy-950: #060e24;
+  --navy-900: #0b1a3d;
+  --navy-700: #123b7a;
+  --blue-accent: #2f6fd1;
+  --gold: #e3a53a;
+  --ink: #16213e;
+  --border: #e2e7f1;
+  --card: #ffffff;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Manrope", sans-serif;
+}
+
+h1,
+.brand-section h1 {
+  font-family: "Poppins", sans-serif;
+}
+
+body {
+  background:
+    radial-gradient(
+      circle at 15% 20%,
+      rgba(227, 165, 58, 0.1),
+      transparent 40%
+    ),
+    radial-gradient(
+      circle at 85% 80%,
+      rgba(47, 111, 209, 0.2),
+      transparent 45%
+    ),
+    linear-gradient(
+      160deg,
+      var(--navy-950) 0%,
+      var(--navy-900) 55%,
+      var(--navy-700) 100%
+    );
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 24px;
+}
+
+.login-container {
+  display: flex;
+  width: 100%;
+  max-width: 940px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 48px;
+}
+
+.brand-section {
+  flex: 1;
+  text-align: center;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.brand-section .logo {
+  width: 130px;
+  filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.35));
+}
+
+.brand-section h1 {
+  font-size: 2.6rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+
+.brand-section p {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--gold);
+  text-transform: uppercase;
+}
+
+.form-section {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+
+.login-card {
+  background-color: var(--card);
+  width: 100%;
+  max-width: 380px;
+  padding: 44px 36px;
+  border-radius: 20px;
+  box-shadow:
+    0 24px 48px -12px rgba(6, 14, 36, 0.45),
+    0 2px 6px rgba(6, 14, 36, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+}
+
+.user-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--navy-700), var(--blue-accent));
+  margin-bottom: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.user-icon::before {
+  content: "\f007";
+  font-family: "Font Awesome 6 Free";
+  font-weight: 900;
+  color: #fff;
+  font-size: 1.2rem;
+}
+
+.input-group {
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.input-group label {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 7px;
+  letter-spacing: 0.2px;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  font-size: 0.9rem;
+  outline: none;
+  color: var(--ink);
+  background-color: #f8faff;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.input-group input::placeholder {
+  color: #9aa3b8;
+}
+
+.input-group input:focus {
+  border-color: var(--blue-accent);
+  background-color: #fff;
+  box-shadow: 0 0 0 4px rgba(47, 111, 209, 0.12);
+}
+
+.password-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-wrapper input {
+  padding-right: 42px;
+}
+
+.password-wrapper i {
+  position: absolute;
+  right: 14px;
+  cursor: pointer;
+  color: #8590a6;
+  font-size: 1rem;
+  transition: color 0.2s ease;
+}
+
+.password-wrapper i:hover {
+  color: var(--blue-accent);
+}
+
+.btn-login {
+  width: 100%;
+  background: linear-gradient(135deg, var(--navy-900), var(--blue-accent));
+  color: white;
+  border: none;
+  padding: 13px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  margin-top: 6px;
+  margin-bottom: 26px;
+  box-shadow: 0 10px 20px -8px rgba(47, 111, 209, 0.55);
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.btn-login:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 26px -8px rgba(47, 111, 209, 0.65);
+}
+
+.btn-login:active {
+  transform: translateY(0);
+}
+
+.action-buttons {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.btn-secondary {
+  flex: 1;
+  background-color: transparent;
+  color: var(--navy-900);
+  text-decoration: none;
+  text-align: center;
+  padding: 10px;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  border: 1.5px solid var(--border);
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.btn-secondary:hover {
+  background-color: #f0f4fc;
+  border-color: var(--blue-accent);
+  color: var(--blue-accent);
+}
+
+@media (max-width: 768px) {
+  .login-container {
+    flex-direction: column;
+    gap: 40px;
+  }
+  .login-card {
+    box-shadow: 0 20px 40px -14px rgba(6, 14, 36, 0.5);
+  }
+}
+
+/* ============================================================
+   MODAL PERINGATAN (NIM/Password salah, dll)
+   ============================================================ */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(6, 14, 36, 0.55);
+  backdrop-filter: blur(3px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 20px;
+}
+
+.modal-overlay.open {
+  display: flex;
+}
+
+.modal-box-warning {
+  background: #ffffff;
+  width: 100%;
+  max-width: 340px;
+  border-radius: 20px;
+  padding: 36px 30px 28px;
+  text-align: center;
+  box-shadow: 0 24px 60px -12px rgba(6, 14, 36, 0.35);
+  animation: modal-pop 0.25s ease;
+}
+
+@keyframes modal-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.92) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.modal-icon-outline {
+  width: 44px;
+  height: 44px;
+  margin: 0 auto 18px;
+  border-radius: 50%;
+  border: 2px solid var(--ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-icon-outline i {
+  font-size: 1.1rem;
+  color: var(--ink);
+}
+
+.modal-box-warning h2 {
+  font-family: "Poppins", sans-serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 12px;
+}
+
+.modal-box-warning p {
+  font-size: 0.92rem;
+  color: var(--ink);
+  line-height: 1.5;
+  margin-bottom: 26px;
+}
+
+.modal-btn-dark {
+  width: 100%;
+  background-color: var(--ink);
+  color: #fff;
+  border: none;
+  padding: 12px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.modal-btn-dark:hover {
+  opacity: 0.88;
+}
+
+@media (max-width: 480px) {
+  .modal-box-warning {
+    padding: 30px 24px 24px;
+  }
+}

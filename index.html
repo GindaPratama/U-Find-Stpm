@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login Satpam - U-Find</title>
+    <link rel="stylesheet" href="/css/Login.css" />
+    <link rel="icon" href="/assets/img/favicon.ico?v=2" type="image/x-icon" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+  </head>
+
+  <body>
+    <div class="login-container">
+      <div class="brand-section">
+        <img src="assets/img/logo_unikom.png" alt="Logo UNIKOM" class="logo" />
+        <h1>U-Find</h1>
+        <p>TRUST UR HEART, TRUST U-Find</p>
+      </div>
+
+      <div class="form-section">
+        <div class="login-card">
+          <div class="user-icon"></div>
+
+          <form action="html/Dashboard.html" method="GET">
+            <div class="input-group">
+              <label for="nip">NIP</label>
+              <input
+                type="text"
+                id="nip"
+                name="nip"
+                placeholder="Masukkan NIP"
+                required
+              />
+            </div>
+
+            <div class="input-group">
+              <label for="password">Password</label>
+              <div class="password-wrapper">
+                <input
+                  type="password"
+                  id="password"
+                  name="password"
+                  placeholder="Masukkan Password"
+                  required
+                />
+                <i class="fa-regular fa-eye" id="togglePassword"></i>
+              </div>
+            </div>
+
+            <button type="submit" class="btn-login">Login</button>
+
+            <div class="action-buttons">
+              <a href="html/ResetPassword.html" class="btn-secondary"
+                >Lupa Password</a
+              >
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Peringatan (NIM/Password salah, dll) -->
+    <div class="modal-overlay" id="warningModal">
+      <div class="modal-box modal-box-warning">
+        <div class="modal-icon-outline">
+          <i class="fa-solid fa-exclamation"></i>
+        </div>
+        <h2 id="warningTitle">Peringatan</h2>
+        <p id="warningMessage">NIM atau Password Salah</p>
+        <button type="button" class="modal-btn-dark" id="warningOkBtn">
+          Ok
+        </button>
+      </div>
+    </div>
+
+    <script src="/js/Login.js"></script>
+  </body>
+</html>
