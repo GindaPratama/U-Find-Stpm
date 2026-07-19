@@ -3,9 +3,9 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Dashboard Satpam - U-Find</title>
-    <link rel="icon" href="/assets/img/favicon.ico?v=2" type="image/x-icon" />
-    <link rel="stylesheet" href="/css/Dashboard.css" />
+    <title>Profile - U-Find</title>
+    <link rel="icon" href="../assets/img/favicon.ico?v=2" type="image/x-icon" />
+    <link rel="stylesheet" href="../css/Profile.css" />
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
@@ -50,37 +50,48 @@
         </div>
       </header>
 
-      <nav class="menu-bar">
-        <a href="DaftarValidasiLaporan.html" class="menu-bar-item"
-          >Daftar Validasi Laporan</a
-        >
-        <a href="PemantauanStatus.html" class="menu-bar-item"
-          >Pemantauan Status</a
-        >
-        <a href="VerifikasiKlaim.html" class="menu-bar-item"
-          >Verifikasi Klaim</a
-        >
-        <a href="RekapitulasiLaporan.html" class="menu-bar-item"
-          >Rekapitulasi Laporan</a
-        >
-      </nav>
-
       <main class="main-content">
-        <div class="dashboard-card">
-          <div class="welcome-center">
-            <img
-              src="../assets/img/logo_unikom.png"
-              alt="Logo UNIKOM Besar"
-              class="welcome-logo-center"
-            />
-            <h1>Selamat datang di U-Find</h1>
-            <p>TRUST UR HEART, TRUST U-Find</p>
+        <div class="profile-card">
+          <div class="profile-header">
+            <i class="fa-solid fa-circle-user"></i>
+            <div>
+              <p class="name-top" id="profileNamaTop">Memuat...</p>
+              <p class="role-top">Satpam</p>
+            </div>
+          </div>
+
+          <div class="profile-info">
+            <div class="info-group">
+              <label>Nama</label>
+              <p id="profileNama">-</p>
+            </div>
+            <div class="info-group">
+              <label>NIP</label>
+              <p id="profileNip">-</p>
+            </div>
+            <div class="info-group">
+              <label>Shift</label>
+              <p id="profileShift">-</p>
+            </div>
+            <div class="info-group">
+              <label>Nomer Handphone</label>
+              <p id="profileNoHp">-</p>
+            </div>
+            <div class="info-group">
+              <label>Email</label>
+              <p id="profileEmail">-</p>
+            </div>
+          </div>
+
+          <div class="action-buttons">
+            <a href="../index.html" class="btn-keluar" id="btnKeluar">Keluar</a>
+            <a href="Dashboard.html" class="btn-kembali">Kembali</a>
           </div>
         </div>
       </main>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="../js/Dashboard.js"></script>
+    <script src="../js/Profile.js"></script>
   </body>
 </html>
