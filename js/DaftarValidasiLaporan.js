@@ -212,9 +212,8 @@ window.submitApprove = async function (btn) {
   const { table, id } = currentApproveReport;
   const isHilang = table === "Laporan_Hilang";
   const pkColumn = isHilang ? "Id_Laporan" : "Id_Temuan";
-  // Status konsisten untuk kedua tabel (sebelumnya beda-beda:
-  // "Sedang Dicari" vs "Tersedia dipos", sekarang disamakan).
-  const newStatus = "Sedang Dicari";
+  // Jika laporan hilang, statusnya "Sedang Dicari". Jika laporan temuan, statusnya "Tersedia dipos".
+  const newStatus = isHilang ? "Sedang Dicari" : "Tersedia dipos";
 
   try {
     const { data, error } = await supabaseClient
