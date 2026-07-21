@@ -17,9 +17,8 @@
   box-sizing: border-box;
   font-family: "Manrope", sans-serif;
 }
-
 h1,
-.brand-section h1 {
+.brand-text h1 {
   font-family: "Poppins", sans-serif;
 }
 
@@ -48,6 +47,9 @@ body {
   padding: 24px;
 }
 
+/* =========================================
+   1. DESKTOP / PC (DEFAULT)
+   ========================================= */
 .login-container {
   display: flex;
   width: 100%;
@@ -64,26 +66,30 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 14px;
+  gap: 16px;
 }
-
 .brand-section .logo {
   width: 130px;
   filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.35));
 }
-
-.brand-section h1 {
+.brand-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.brand-text h1 {
   font-size: 2.6rem;
   font-weight: 800;
   letter-spacing: 0.5px;
+  margin: 0;
 }
-
-.brand-section p {
+.brand-text p {
   font-size: 0.78rem;
   font-weight: 700;
   letter-spacing: 2px;
   color: var(--gold);
   text-transform: uppercase;
+  margin: 0;
 }
 
 .form-section {
@@ -91,7 +97,6 @@ body {
   display: flex;
   justify-content: center;
 }
-
 .login-card {
   background-color: var(--card);
   width: 100%;
@@ -103,7 +108,6 @@ body {
     0 2px 6px rgba(6, 14, 36, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.6);
 }
-
 .user-icon {
   width: 52px;
   height: 52px;
@@ -115,7 +119,6 @@ body {
   justify-content: center;
   position: relative;
 }
-
 .user-icon::before {
   content: "\f007";
   font-family: "Font Awesome 6 Free";
@@ -128,16 +131,13 @@ body {
   margin-bottom: 20px;
   text-align: left;
 }
-
 .input-group label {
   display: block;
   font-size: 0.78rem;
   font-weight: 700;
   color: var(--ink);
   margin-bottom: 7px;
-  letter-spacing: 0.2px;
 }
-
 .input-group input {
   width: 100%;
   padding: 12px 14px;
@@ -147,41 +147,28 @@ body {
   outline: none;
   color: var(--ink);
   background-color: #f8faff;
-  transition:
-    border-color 0.2s ease,
-    box-shadow 0.2s ease,
-    background-color 0.2s ease;
+  transition: all 0.2s ease;
 }
-
-.input-group input::placeholder {
-  color: #9aa3b8;
-}
-
 .input-group input:focus {
   border-color: var(--blue-accent);
   background-color: #fff;
   box-shadow: 0 0 0 4px rgba(47, 111, 209, 0.12);
 }
-
 .password-wrapper {
   position: relative;
   display: flex;
   align-items: center;
 }
-
 .password-wrapper input {
   padding-right: 42px;
 }
-
 .password-wrapper i {
   position: absolute;
   right: 14px;
   cursor: pointer;
   color: #8590a6;
   font-size: 1rem;
-  transition: color 0.2s ease;
 }
-
 .password-wrapper i:hover {
   color: var(--blue-accent);
 }
@@ -200,25 +187,18 @@ body {
   margin-bottom: 26px;
   box-shadow: 0 10px 20px -8px rgba(47, 111, 209, 0.55);
   transition:
-    transform 0.15s ease,
-    box-shadow 0.15s ease;
+    transform 0.15s,
+    box-shadow 0.15s;
 }
-
 .btn-login:hover {
   transform: translateY(-1px);
   box-shadow: 0 14px 26px -8px rgba(47, 111, 209, 0.65);
 }
-
-.btn-login:active {
-  transform: translateY(0);
-}
-
 .action-buttons {
   display: flex;
   justify-content: space-between;
   gap: 12px;
 }
-
 .btn-secondary {
   flex: 1;
   background-color: transparent;
@@ -230,32 +210,93 @@ body {
   font-size: 0.78rem;
   font-weight: 700;
   border: 1.5px solid var(--border);
-  transition:
-    background 0.2s ease,
-    border-color 0.2s ease,
-    color 0.2s ease;
+  transition: all 0.2s ease;
 }
-
 .btn-secondary:hover {
   background-color: #f0f4fc;
   border-color: var(--blue-accent);
   color: var(--blue-accent);
 }
 
-@media (max-width: 768px) {
+/* =========================================
+   2. LAPTOP 
+   ========================================= */
+@media (max-width: 1024px) {
   .login-container {
-    flex-direction: column;
-    gap: 40px;
+    gap: 32px;
+    padding: 0 16px;
+  }
+  .brand-section .logo {
+    width: 110px;
+  }
+  .brand-text h1 {
+    font-size: 2.2rem;
   }
   .login-card {
-    box-shadow: 0 20px 40px -14px rgba(6, 14, 36, 0.5);
+    padding: 36px 28px;
   }
 }
 
-/* ============================================================
-   MODAL PERINGATAN (NIM/Password salah, dll)
-   ============================================================ */
+/* =========================================
+   3. MOBILE & TABLET (LOGO DI KIRI, TEKS KANAN)
+   ========================================= */
+@media (max-width: 768px) {
+  .login-container {
+    flex-direction: column;
+    gap: 32px;
+  }
+  .login-card {
+    box-shadow: 0 20px 40px -14px rgba(6, 14, 36, 0.5);
+    width: 100%;
+    max-width: 400px;
+  }
 
+  /* Brand Horizontal (Kiri-Kanan) */
+  .brand-section {
+    flex-direction: row;
+    text-align: left;
+    justify-content: center;
+    align-items: center;
+    gap: 18px;
+    width: 100%;
+  }
+  .brand-section .logo {
+    width: 75px;
+  }
+  .brand-text {
+    justify-content: center;
+  }
+  .brand-text h1 {
+    font-size: 2rem;
+  }
+  .brand-text p {
+    font-size: 0.6rem;
+    letter-spacing: 1px;
+  }
+}
+
+/* =========================================
+   4. MOBILE KECIL
+   ========================================= */
+@media (max-width: 480px) {
+  .brand-section .logo {
+    width: 60px;
+  }
+  .brand-text h1 {
+    font-size: 1.7rem;
+  }
+  .brand-text p {
+    font-size: 0.55rem;
+    letter-spacing: 0.5px;
+  }
+  .login-card {
+    padding: 32px 24px;
+  }
+}
+
+/* =========================================
+   MODAL PERINGATAN
+   ========================================= */
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -267,11 +308,9 @@ body {
   z-index: 100;
   padding: 20px;
 }
-
 .modal-overlay.open {
   display: flex;
 }
-
 .modal-box-warning {
   background: #ffffff;
   width: 100%;
@@ -282,7 +321,6 @@ body {
   box-shadow: 0 24px 60px -12px rgba(6, 14, 36, 0.35);
   animation: modal-pop 0.25s ease;
 }
-
 @keyframes modal-pop {
   from {
     opacity: 0;
@@ -293,7 +331,6 @@ body {
     transform: scale(1) translateY(0);
   }
 }
-
 .modal-icon-outline {
   width: 44px;
   height: 44px;
@@ -304,27 +341,22 @@ body {
   align-items: center;
   justify-content: center;
 }
-
 .modal-icon-outline i {
   font-size: 1.1rem;
   color: var(--ink);
 }
-
 .modal-box-warning h2 {
-  font-family: "Poppins", sans-serif;
   font-size: 1.15rem;
   font-weight: 700;
   color: var(--ink);
   margin-bottom: 12px;
 }
-
 .modal-box-warning p {
   font-size: 0.92rem;
   color: var(--ink);
   line-height: 1.5;
   margin-bottom: 26px;
 }
-
 .modal-btn-dark {
   width: 100%;
   background-color: var(--ink);
@@ -337,13 +369,6 @@ body {
   cursor: pointer;
   transition: opacity 0.2s ease;
 }
-
 .modal-btn-dark:hover {
   opacity: 0.88;
-}
-
-@media (max-width: 480px) {
-  .modal-box-warning {
-    padding: 30px 24px 24px;
-  }
 }

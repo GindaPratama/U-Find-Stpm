@@ -18,24 +18,21 @@
   box-sizing: border-box;
   font-family: "Manrope", sans-serif;
 }
-
 h1,
-.nav-title {
+.nav-title,
+h3 {
   font-family: "Poppins", sans-serif;
 }
-
 html,
 body {
   height: 100%;
 }
-
 body {
   background-color: var(--page-bg);
   min-height: 100vh;
   display: flex;
   flex-direction: column;
 }
-
 .dashboard-wrapper {
   width: 100%;
   flex: 1;
@@ -44,6 +41,7 @@ body {
   min-height: 100vh;
 }
 
+/* NAVBAR */
 .navbar {
   background: linear-gradient(
     100deg,
@@ -58,36 +56,41 @@ body {
   color: white;
   box-shadow: 0 4px 16px rgba(6, 14, 36, 0.18);
   width: 100%;
+  z-index: 50;
 }
-
-.nav-left {
+.nav-left,
+.nav-right {
   display: flex;
   align-items: center;
   gap: 14px;
 }
-
+.hamburger-btn {
+  display: none; /* SEMBUNYIKAN DI DESKTOP */
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 1.4rem;
+  cursor: pointer;
+  margin-right: 10px;
+  transition: color 0.2s;
+}
+.hamburger-btn:hover {
+  color: var(--gold);
+}
 .nav-logo {
   width: 34px;
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4));
 }
-
 .nav-title {
   font-weight: 700;
   font-size: 1.05rem;
   letter-spacing: 0.3px;
 }
 
-.nav-right {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
-
-/* --- PROFILE DROPDOWN --- */
+/* PROFILE DROPDOWN */
 .profile-menu {
   position: relative;
 }
-
 .profile-trigger {
   display: flex;
   align-items: center;
@@ -102,30 +105,25 @@ body {
     background-color 0.2s ease,
     border-color 0.2s ease;
 }
-
 .profile-trigger:hover,
 .profile-trigger.open {
   background-color: rgba(255, 255, 255, 0.1);
   border-color: rgba(255, 255, 255, 0.4);
 }
-
 .username {
   font-weight: 500;
   font-size: 0.9rem;
   color: #dfe6f5;
 }
-
 .profile-icon {
   font-size: 1.9rem;
   color: #fff;
 }
-
 .chevron-icon {
   font-size: 0.7rem;
   color: #b8c3dc;
   transition: transform 0.2s ease;
 }
-
 .profile-trigger.open .chevron-icon {
   transform: rotate(180deg);
 }
@@ -149,13 +147,11 @@ body {
     visibility 0.18s ease;
   z-index: 20;
 }
-
 .profile-dropdown.open {
   opacity: 1;
   visibility: visible;
   transform: translateY(0);
 }
-
 .dropdown-item {
   display: flex;
   align-items: center;
@@ -167,61 +163,37 @@ body {
   font-size: 0.85rem;
   font-weight: 600;
   transition:
-    background-color 0.15s ease,
-    color 0.15s ease;
+    background-color 0.15s,
+    color 0.15s;
 }
-
 .dropdown-item i {
   width: 16px;
   text-align: center;
   font-size: 0.9rem;
   color: var(--ink-soft);
-  transition: color 0.15s ease;
+  transition: color 0.15s;
 }
-
 .dropdown-item:hover {
   background-color: #f0f4fc;
   color: var(--blue-accent);
 }
-
 .dropdown-item:hover i {
   color: var(--blue-accent);
 }
-
 .dropdown-divider {
   height: 1px;
   background-color: var(--border);
   margin: 6px 4px;
 }
-
 .dropdown-item-danger:hover {
   background-color: #fdeeee;
   color: #c53030;
 }
-
 .dropdown-item-danger:hover i {
   color: #c53030;
 }
 
-.main-content {
-  flex: 1;
-  display: flex;
-  padding: 0;
-}
-
-.dashboard-card {
-  background-color: #ffffff;
-  width: 100%;
-  flex: 1;
-  border-radius: 0;
-  border: none;
-  box-shadow: none;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-}
-
-/* --- MENU BAR (horizontal, di bawah navbar) --- */
+/* MENU BAR MENDATAR (DESKTOP) */
 .menu-bar {
   background-color: #eaf1fd;
   border-bottom: 1px solid var(--border);
@@ -230,7 +202,6 @@ body {
   padding: 14px 32px;
   flex-wrap: wrap;
 }
-
 .menu-bar-item {
   background-color: #ffffff;
   border: 1px solid var(--border);
@@ -242,12 +213,11 @@ body {
   text-decoration: none;
   box-shadow: 0 2px 6px rgba(6, 14, 36, 0.05);
   transition:
-    background-color 0.2s ease,
-    border-color 0.2s ease,
-    color 0.2s ease,
-    transform 0.15s ease;
+    background-color 0.2s,
+    border-color 0.2s,
+    color 0.2s,
+    transform 0.15s;
 }
-
 .menu-bar-item:hover {
   background-color: var(--blue-accent);
   border-color: var(--blue-accent);
@@ -255,7 +225,96 @@ body {
   transform: translateY(-2px);
 }
 
-/* --- WELCOME CENTER: full putih polos, mengisi seluruh sisa layar --- */
+/* SIDEBAR MOBILE */
+.sidebar-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(6, 14, 36, 0.5);
+  backdrop-filter: blur(2px);
+  z-index: 99;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+}
+.sidebar-overlay.show {
+  opacity: 1;
+  visibility: visible;
+}
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: -280px;
+  width: 280px;
+  height: 100%;
+  background-color: #ffffff;
+  box-shadow: 4px 0 15px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  transition: left 0.3s ease;
+}
+.sidebar.open {
+  left: 0;
+}
+.sidebar-header {
+  padding: 22px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border);
+  background: #f8faff;
+}
+.sidebar-header h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--navy-900);
+}
+.close-sidebar {
+  background: transparent;
+  border: none;
+  font-size: 1.4rem;
+  color: var(--ink-soft);
+  cursor: pointer;
+  transition: color 0.2s;
+}
+.close-sidebar:hover {
+  color: #c53030;
+}
+.sidebar-item {
+  padding: 16px 20px;
+  text-decoration: none;
+  font-weight: 600;
+  color: var(--ink);
+  border-bottom: 1px solid var(--border);
+  font-size: 0.95rem;
+  transition:
+    background 0.2s,
+    color 0.2s,
+    padding-left 0.2s;
+}
+.sidebar-item:hover {
+  background-color: #f0f4fc;
+  color: var(--blue-accent);
+  border-left: 4px solid var(--blue-accent);
+  padding-left: 16px;
+}
+
+/* KONTEN UTAMA */
+.main-content {
+  flex: 1;
+  display: flex;
+  padding: 0;
+}
+.dashboard-card {
+  background-color: #ffffff;
+  width: 100%;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
 .welcome-center {
   flex: 1;
   display: flex;
@@ -264,23 +323,19 @@ body {
   justify-content: center;
   text-align: center;
   gap: 18px;
-  background-color: #ffffff;
   padding: 60px 32px;
 }
-
 .welcome-logo-center {
   width: 150px;
   filter: drop-shadow(0 6px 14px rgba(6, 14, 36, 0.15));
   margin-bottom: 8px;
 }
-
 .welcome-center h1 {
   font-size: 2rem;
   color: var(--navy-900);
   font-weight: 800;
   letter-spacing: -0.3px;
 }
-
 .welcome-center p {
   font-size: 0.85rem;
   font-weight: 700;
@@ -289,20 +344,153 @@ body {
   text-transform: uppercase;
 }
 
-/* --- RESPONSIVE --- */
-@media (max-width: 768px) {
-  .main-content {
-    padding: 0;
+/* MODAL KELUAR */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(6, 14, 36, 0.5);
+  backdrop-filter: blur(2px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  visibility: hidden;
+  opacity: 0;
+  transition:
+    opacity 0.2s ease,
+    visibility 0.2s ease;
+  padding: 16px;
+}
+.modal-overlay.show {
+  visibility: visible;
+  opacity: 1;
+}
+.modal-box {
+  background: #ffffff;
+  width: 100%;
+  max-width: 440px;
+  border-radius: 18px;
+  padding: 22px 26px;
+  box-shadow: 0 24px 60px -12px rgba(6, 14, 36, 0.35);
+  transform: translateY(-16px);
+  transition: transform 0.25s ease;
+  text-align: center;
+}
+.modal-overlay.show .modal-box {
+  transform: translateY(0);
+}
+.modal-icon-outline {
+  width: 54px;
+  height: 54px;
+  margin: 0 auto 18px;
+  border-radius: 50%;
+  border: 2px solid var(--ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.modal-icon-outline.question-icon {
+  border-color: var(--blue-accent);
+}
+.modal-icon-outline.question-icon i {
+  color: var(--blue-accent);
+  font-size: 1.3rem;
+}
+.modal-box h2 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 12px;
+}
+.modal-box p.modal-desc {
+  font-size: 0.92rem;
+  color: var(--ink-soft);
+  line-height: 1.5;
+  margin-bottom: 26px;
+}
+.modal-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.btn-modal-dark {
+  background-color: var(--navy-950);
+  color: white;
+  border: none;
+  padding: 11px 24px;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  flex: 1;
+  transition: background-color 0.15s ease;
+}
+.btn-modal-dark:hover {
+  background-color: var(--navy-900);
+}
+.btn-modal-dark.btn-outline {
+  background-color: transparent;
+  color: var(--navy-950);
+  border: 1.5px solid var(--border);
+}
+.btn-modal-dark.btn-outline:hover {
+  background-color: #f0f4fc;
+}
+.btn-modal-primary {
+  width: 100%;
+  background: linear-gradient(135deg, var(--navy-700), var(--blue-accent));
+  color: #fff;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 10px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  flex: 1;
+  transition: opacity 0.2s ease;
+}
+.btn-modal-primary:hover {
+  opacity: 0.9;
+}
+
+/* =========================================
+   RESPONSIVE MEDIA QUERIES
+   ========================================= */
+
+/* LAPTOP */
+@media screen and (max-width: 1024px) {
+  .navbar {
+    padding: 12px 24px;
   }
   .menu-bar {
-    padding: 12px 16px;
-    justify-content: center;
+    padding: 12px 24px;
   }
-  .menu-bar-item {
-    flex: 1 1 auto;
-    text-align: center;
-    font-size: 0.78rem;
-    padding: 10px 12px;
+  .welcome-center {
+    padding: 50px 24px;
+  }
+}
+
+/* MOBILE / TABLET (TAMPILKAN HAMBURGER, SEMBUNYIKAN TABS MENDATAR) */
+@media screen and (max-width: 768px) {
+  .hamburger-btn {
+    display: inline-block;
+  } /* Hamburger Muncul */
+  .desktop-tabs {
+    display: none !important;
+  } /* Menu Bar Mendatar Sembunyi */
+
+  .navbar {
+    padding: 12px 16px;
+  }
+  .nav-title {
+    font-size: 1rem;
+  }
+  .username {
+    display: none;
+  }
+  .profile-trigger {
+    padding: 6px 10px;
   }
   .welcome-center {
     padding: 40px 20px;
@@ -313,10 +501,23 @@ body {
   .welcome-logo-center {
     width: 110px;
   }
-  .username {
-    display: none;
+}
+
+/* HP KECIL */
+@media screen and (max-width: 480px) {
+  .nav-logo {
+    width: 28px;
   }
-  .profile-trigger {
-    padding: 6px 10px;
+  .modal-box {
+    padding: 16px;
+    margin: 10px;
+  }
+  .modal-box h2 {
+    font-size: 1rem;
+  }
+  .btn-modal-dark,
+  .btn-modal-primary {
+    font-size: 0.8rem;
+    padding: 10px 16px;
   }
 }

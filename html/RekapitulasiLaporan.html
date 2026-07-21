@@ -5,115 +5,177 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Rekapitulasi Laporan - U-Find</title>
     <link rel="icon" href="../assets/img/favicon.ico?v=2" type="image/x-icon" />
-    <link rel="stylesheet" href="../css/AdminShared.css" />
     <link rel="stylesheet" href="../css/RekapitulasiLaporan.css" />
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
     />
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   </head>
+
   <body>
-    <nav class="navbar">
-      <div class="nav-left">
-        <img src="../assets/img/logo_unikom.png" alt="Logo" class="nav-logo" />
-        <span class="nav-title">U-Find</span>
-      </div>
-      <div class="nav-right">
-        <div class="profile-menu">
-          <button type="button" class="profile-trigger" id="profileTrigger">
-            <span class="username">Pengguna</span>
-            <i class="fa-solid fa-circle-user profile-icon"></i>
-            <i class="fa-solid fa-chevron-down chevron-icon"></i>
+    <div class="dashboard-wrapper">
+      <header class="navbar">
+        <div class="nav-left">
+          <button type="button" class="hamburger-btn" id="hamburgerBtn">
+            <i class="fa-solid fa-bars"></i>
           </button>
-          <div class="profile-dropdown" id="profileDropdown">
-            <a
-              href="#"
-              class="dropdown-item dropdown-item-danger"
-              id="logoutBtn"
-            >
-              <i class="fa-solid fa-right-from-bracket"></i>
-              <span>Keluar</span>
-            </a>
+          <img src="../assets/img/logo_unikom.png" alt="Logo" class="nav-logo" />
+          <span class="nav-title">U-Find</span>
+        </div>
+        <div class="nav-right">
+          <div class="profile-menu">
+            <button type="button" class="profile-trigger" id="profileTrigger">
+              <span class="username">Pengguna</span>
+              <i class="fa-solid fa-circle-user profile-icon"></i>
+              <i class="fa-solid fa-chevron-down chevron-icon"></i>
+            </button>
+            <div class="profile-dropdown" id="profileDropdown">
+              <a href="Profile.html" class="dropdown-item">
+                <i class="fa-regular fa-user"></i>
+                <span>Profil Saya</span>
+              </a>
+              <div class="dropdown-divider"></div>
+              <a href="#" class="dropdown-item dropdown-item-danger" id="logoutBtn">
+                <i class="fa-solid fa-right-from-bracket"></i>
+                <span>Keluar</span>
+              </a>
+            </div>
           </div>
         </div>
-      </div>
-    </nav>
+      </header>
 
-    <div class="main-container">
-      <div class="tabs-container">
-        <a href="DaftarValidasiLaporan.html" class="tab-btn"
-          >Daftar Validasi Laporan</a
+      <!-- Sidebar Overlay & Menu (Hanya Muncul di Mobile) -->
+      <div class="sidebar-overlay" id="sidebarOverlay"></div>
+      <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+          <h3>Menu U-Find</h3>
+          <button type="button" class="close-sidebar" id="closeSidebarBtn">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+        <a href="Dashboard.html" class="sidebar-item"
+          ><i class="fa-solid fa-house" style="width: 20px"></i> Dashboard</a
         >
-        <a href="PemantauanStatus.html" class="tab-btn">Pemantauan Status</a>
-        <a href="VerifikasiKlaim.html" class="tab-btn">Verifikasi Klaim</a>
-        <a href="#" class="tab-btn active">Rekapitulasi Laporan</a>
-      </div>
+        <a href="DaftarValidasiLaporan.html" class="sidebar-item">Daftar Validasi Laporan</a>
+        <a href="PemantauanStatus.html" class="sidebar-item">Pemantauan Status</a>
+        <a href="VerifikasiKlaim.html" class="sidebar-item">Verifikasi Klaim</a>
+        <a href="#" class="sidebar-item active">Rekapitulasi Laporan</a>
+      </nav>
 
-      <div class="rekap-wrapper">
-        <h2 class="section-title text-center">Rekapitulasi Laporan</h2>
+      <main class="main-container">
+        <!-- Tombol Kembali -->
+        <a href="Dashboard.html" class="btn-back"><i class="fa-solid fa-arrow-left"></i> Kembali</a>
 
-        <div class="rekap-grid">
-          <div class="rekap-left">
-            <div class="filter-date">
-              <label>Pilih Periode Waktu</label>
-              <div class="date-input-wrapper">
-                <input type="date" id="tanggalMulai" />
-                <span>-</span>
-                <input type="date" id="tanggalSelesai" />
+        <!-- Menu Tabs Mendatar (Hanya Muncul di Laptop/PC) -->
+        <div class="tabs-container desktop-tabs">
+          <a href="DaftarValidasiLaporan.html" class="tab-btn">Daftar Validasi Laporan</a>
+          <a href="PemantauanStatus.html" class="tab-btn">Pemantauan Status</a>
+          <a href="VerifikasiKlaim.html" class="tab-btn">Verifikasi Klaim</a>
+          <a href="#" class="tab-btn active">Rekapitulasi Laporan</a>
+        </div>
+
+        <div class="rekap-wrapper">
+          <!-- Panel Kiri: Filter, Tabel, dan Tombol Download -->
+          <div class="rekap-left-panel">
+            <div class="filter-card">
+              <h3 class="card-title">Pilih Periode Waktu</h3>
+              <div class="date-picker-group">
+                <input type="date" id="startDate" class="date-input" />
+                <span> - </span>
+                <input type="date" id="endDate" class="date-input" />
+                <button id="btnFilter" class="btn-filter-date">
+                  <i class="fa-solid fa-calendar-check"></i>
+                </button>
               </div>
-              <button
-                class="btn-download"
-                id="btnTerapkan"
-                style="margin-top: 8px"
-              >
-                Terapkan Filter <i class="fa-solid fa-filter"></i>
-              </button>
             </div>
 
-            <table class="rekap-table">
-              <thead>
-                <tr>
-                  <th colspan="2" id="periodeLabel">Periode Waktu</th>
-                </tr>
-                <tr>
-                  <th>Nama Laporan</th>
-                  <th>Total</th>
-                </tr>
-              </thead>
-              <tbody id="rekapTableBody">
-                <tr>
-                  <td>Barang Hilang</td>
-                  <td id="totalHilang">-</td>
-                </tr>
-                <tr>
-                  <td>Barang Temuan</td>
-                  <td id="totalTemuan">-</td>
-                </tr>
-                <tr>
-                  <td>Barang Diklaim</td>
-                  <td id="totalDiklaim">-</td>
-                </tr>
-              </tbody>
-            </table>
+            <div class="table-card">
+              <div class="table-header-box">
+                <h4>Periode Waktu</h4>
+                <p id="tabelPeriodeLabel">Memuat...</p>
+              </div>
+              <div class="table-responsive">
+                <table class="rekap-table">
+                  <thead>
+                    <tr>
+                      <th>Nama Laporan</th>
+                      <th>Total</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Barang Hilang</td>
+                      <td id="totalHilang">0</td>
+                    </tr>
+                    <tr>
+                      <td>Barang Temuan</td>
+                      <td id="totalTemuan">0</td>
+                    </tr>
+                    <tr>
+                      <td>Barang Diklaim</td>
+                      <td id="totalKlaim">0</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
 
-            <button class="btn-download" id="btnUnduh">
-              Unduh Laporan Rekap (CSV) <i class="fa-solid fa-download"></i>
+            <button id="btnDownload" class="btn-download">
+              Unduh Laporan Rekap <i class="fa-solid fa-download"></i>
             </button>
           </div>
 
-          <div class="rekap-right">
-            <div class="chart-container">
-              <h4 id="periodeLabelChart">Periode Waktu</h4>
-              <div class="chart-area">
-                <div class="y-axis" id="yAxis"></div>
-                <div class="bars" id="barsContainer"></div>
+          <!-- Panel Kanan: Grafik (Chart) -->
+          <div class="rekap-right-panel">
+            <div class="chart-card">
+              <div class="chart-header">
+                <h3>Periode Waktu</h3>
+                <p id="chartPeriodeLabel">Memuat...</p>
+              </div>
+              <div class="chart-container">
+                <canvas id="rekapChart"></canvas>
               </div>
             </div>
           </div>
         </div>
+      </main>
+    </div>
+
+    <!-- Modals -->
+    <div id="successModal" class="modal-overlay">
+      <div class="modal-box center-text">
+        <div class="modal-icon-outline success-icon"><i class="fa-solid fa-check"></i></div>
+        <h2>Berhasil</h2>
+        <p class="modal-desc">Laporan berhasil diunduh</p>
+        <button type="button" class="btn-modal-dark" id="closeSuccessBtn">Ya</button>
       </div>
     </div>
+
+    <div id="errorModal" class="modal-overlay">
+      <div class="modal-box center-text">
+        <div class="modal-icon-outline error-icon"><i class="fa-solid fa-exclamation"></i></div>
+        <h2>Gagal</h2>
+        <p class="modal-desc" id="errorMessage">Laporan gagal diunduh</p>
+        <button type="button" class="btn-modal-dark" id="closeErrorBtn">Ya</button>
+      </div>
+    </div>
+
+    <div id="logoutModal" class="modal-overlay highest-z">
+      <div class="modal-box center-text">
+        <div class="modal-icon-outline question-icon"><i class="fa-solid fa-question"></i></div>
+        <h2>Konfirmasi</h2>
+        <p class="modal-desc">Apakah Anda yakin ingin keluar?</p>
+        <div class="modal-footer">
+          <button class="btn-modal-dark btn-outline" id="cancelLogoutBtn">Batal</button>
+          <button class="btn-modal-primary" id="submitLogoutBtn">Ya</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Libraries: Supabase, Chart.js, SheetJS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 
     <script src="../js/AdminAuth.js"></script>
     <script src="../js/RekapitulasiLaporan.js"></script>

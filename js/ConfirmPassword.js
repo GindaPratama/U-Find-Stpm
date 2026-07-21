@@ -1,24 +1,3 @@
-// ConfirmPassword.js
-// Halaman ini dibuka lewat link recovery dari email (dikirim oleh
-// resetPasswordForEmail di ResetPassword.js). Supabase-js otomatis
-// membaca token recovery dari URL dan memicu event PASSWORD_RECOVERY.
-
-// ==================== KONFIGURASI SUPABASE ====================
-// Samakan persis dengan Login.js / ResetPassword.js
-const SUPABASE_URL = "https://fctpmyobagajyhgnptbj.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_YVSLcfVELiN_hbLy_VdFZQ_QAIcBJ2V";
-
-let supabaseClient = null;
-
-try {
-  supabaseClient = window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_ANON_KEY,
-  );
-} catch (err) {
-  console.error("Supabase belum terhubung dengan sempurna:", err);
-}
-
 // ==========================================
 // 1. TOGGLE ICON MATA UNTUK SETIAP FIELD PASSWORD
 // ==========================================
@@ -41,31 +20,42 @@ document.querySelectorAll(".toggle-password").forEach((icon) => {
 });
 
 // ==========================================
-// 2. VALIDASI SESI RECOVERY
+// 2. SETUP MODAL DAN VALIDASI SESI
 // ==========================================
 const form = document.querySelector("form");
 const newPasswordInput = document.getElementById("new_password");
 const confirmPasswordInput = document.getElementById("confirm_password");
 const submitBtn = form ? form.querySelector(".btn-primary") : null;
-const actionButtons = document.querySelector(".action-buttons");
 
-// pesan info/error, dibuat dinamis
-const message = document.createElement("p");
-message.id = "form-message";
-message.style.fontSize = "0.78rem";
-message.style.fontWeight = "600";
-message.style.marginTop = "-8px";
-message.style.marginBottom = "14px";
-message.style.lineHeight = "1.4";
-message.style.display = "none";
-if (form && actionButtons) {
-  form.insertBefore(message, actionButtons);
+// Modal Peringatan
+const warningModal = document.getElementById("warningModal");
+const warningMessage = document.getElementById("warningMessage");
+const warningOkBtn = document.getElementById("warningOkBtn");
+
+// Modal Sukses
+const successModal = document.getElementById("successModal");
+const successOkBtn = document.getElementById("successOkBtn");
+
+function showWarning(text) {
+  if (warningMessage) warningMessage.textContent = text;
+  if (warningModal) warningModal.classList.add("open");
 }
 
-function showMessage(text, isError = true) {
-  message.textContent = text;
-  message.style.color = isError ? "#d1453b" : "#1c8a4b";
-  message.style.display = text ? "block" : "none";
+if (warningOkBtn) {
+  warningOkBtn.addEventListener("click", () => {
+    warningModal.classList.remove("open");
+  });
+}
+
+function showSuccess() {
+  if (successModal) successModal.classList.add("open");
+}
+
+// Redirect hanya terjadi setelah user klik tombol "Ya" di modal Berhasil
+if (successOkBtn) {
+  successOkBtn.addEventListener("click", () => {
+    window.location.href = "../index.html";
+  });
 }
 
 let hasValidRecoverySession = false;
@@ -75,20 +65,18 @@ function lockForm(reasonText) {
   if (newPasswordInput) newPasswordInput.disabled = true;
   if (confirmPasswordInput) confirmPasswordInput.disabled = true;
   if (submitBtn) submitBtn.setAttribute("aria-disabled", "true");
-  showMessage(reasonText, true);
+  showWarning(reasonText);
 }
 
 if (supabaseClient) {
-  // Event ini terpicu otomatis kalau URL mengandung token recovery yang valid
+  // Cek apakah URL valid & sesi recovery aktif
   supabaseClient.auth.onAuthStateChange((event, session) => {
     if (event === "PASSWORD_RECOVERY" && session) {
       hasValidRecoverySession = true;
-      showMessage("");
     }
   });
 
-  // Fallback: kalau setelah beberapa saat tidak ada sesi recovery sama sekali,
-  // berarti link sudah kadaluarsa / rusak / dibuka tanpa lewat email.
+  // Fallback cek sesi jika tidak ada sesi recovery
   setTimeout(async () => {
     if (hasValidRecoverySession) return;
     const { data } = await supabaseClient.auth.getSession();
@@ -107,11 +95,11 @@ if (supabaseClient) {
 // ==========================================
 if (form) {
   form.addEventListener("submit", async (e) => {
-    e.preventDefault();
+    e.preventDefault(); // Tahan form agar tidak langsung berpindah halaman
 
     if (!hasValidRecoverySession) {
-      showMessage(
-        "Sesi reset password belum valid. Silakan buka ulang link dari email kamu.",
+      showWarning(
+        "Sesi reset password belum valid. Silakan lakukan reset password lagi lewat halaman Lupa Password.",
       );
       return;
     }
@@ -119,18 +107,17 @@ if (form) {
     const newPassword = newPasswordInput.value;
     const confirmPassword = confirmPasswordInput.value;
 
-    if (!newPassword || !confirmPassword) {
-      showMessage("Mohon isi kedua field password.");
-      return;
-    }
-
-    if (newPassword.length < 6) {
-      showMessage("Password minimal 6 karakter.");
-      return;
-    }
-
-    if (newPassword !== confirmPassword) {
-      showMessage("Konfirmasi password tidak sama dengan password baru.");
+    // Sesuai UI requirement: Jika field kosong, tidak cocok, atau terlalu pendek,
+    // munculkan modal peringatan dengan teks template dari gambar referensi.
+    if (
+      !newPassword ||
+      !confirmPassword ||
+      newPassword !== confirmPassword ||
+      newPassword.length < 6
+    ) {
+      showWarning(
+        "Mohon lengkapi data atau pastikan konfirmasi password benar",
+      );
       return;
     }
 
@@ -147,25 +134,19 @@ if (form) {
 
       if (error) {
         console.error(error);
-        showMessage("Gagal mengubah password: " + error.message);
+        showWarning("Gagal mengubah password: " + error.message);
         return;
       }
 
-      // logout dari sesi recovery supaya user login ulang dengan password baru
+      // Logout dari sesi recovery agar user login ulang secara manual
       await supabaseClient.auth.signOut();
-
-      showMessage(
-        "Password berhasil diubah! Mengarahkan ke halaman login...",
-        false,
-      );
       form.reset();
 
-      setTimeout(() => {
-        window.location.href = "../index.html";
-      }, 1800);
+      // MUNCULKAN MODAL SUKSES (TIDAK ADA AUTO REDIRECT)
+      showSuccess();
     } catch (err) {
       console.error(err);
-      showMessage("Terjadi kesalahan tak terduga. Coba lagi nanti.");
+      showWarning("Terjadi kesalahan tak terduga. Coba lagi nanti.");
     } finally {
       if (submitBtn) {
         submitBtn.textContent = originalLabel;

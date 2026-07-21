@@ -4,8 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Dashboard Satpam - U-Find</title>
-    <link rel="icon" href="/assets/img/favicon.ico?v=2" type="image/x-icon" />
-    <link rel="stylesheet" href="/css/Dashboard.css" />
+    <link rel="icon" href="../assets/img/favicon.ico?v=2" type="image/x-icon" />
+    <link rel="stylesheet" href="../css/Dashboard.css" />
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
@@ -15,6 +15,10 @@
     <div class="dashboard-wrapper">
       <header class="navbar">
         <div class="nav-left">
+          <!-- Hamburger hanya muncul di Mobile -->
+          <button type="button" class="hamburger-btn" id="hamburgerBtn">
+            <i class="fa-solid fa-bars"></i>
+          </button>
           <a href="../index.html">
             <img
               src="../assets/img/logo_unikom.png"
@@ -24,6 +28,7 @@
           </a>
           <span class="nav-title">U-Find</span>
         </div>
+
         <div class="nav-right">
           <div class="profile-menu">
             <button type="button" class="profile-trigger" id="profileTrigger">
@@ -39,8 +44,9 @@
               </a>
               <div class="dropdown-divider"></div>
               <a
-                href="../index.html"
+                href="#"
                 class="dropdown-item dropdown-item-danger"
+                id="logoutBtn"
               >
                 <i class="fa-solid fa-right-from-bracket"></i>
                 <span>Keluar</span>
@@ -50,17 +56,39 @@
         </div>
       </header>
 
-      <nav class="menu-bar">
-        <a href="/html/DaftarValidasiLaporan.html" class="menu-bar-item"
+      <!-- MENU BAR MENDATAR (Hanya Muncul di Desktop/Laptop) -->
+      <nav class="menu-bar desktop-tabs">
+        <a href="DaftarValidasiLaporan.html" class="menu-bar-item"
           >Daftar Validasi Laporan</a
         >
-        <a href="/html/PemantauanStatus.html" class="menu-bar-item"
+        <a href="PemantauanStatus.html" class="menu-bar-item"
           >Pemantauan Status</a
         >
-        <a href="/html/VerifikasiKlaim.html" class="menu-bar-item"
+        <a href="VerifikasiKlaim.html" class="menu-bar-item"
           >Verifikasi Klaim</a
         >
-        <a href="/html/RekapitulasiLaporan.html" class="menu-bar-item"
+        <a href="RekapitulasiLaporan.html" class="menu-bar-item"
+          >Rekapitulasi Laporan</a
+        >
+      </nav>
+
+      <!-- SIDEBAR OVERLAY & MENU (Hanya Muncul di Mobile) -->
+      <div class="sidebar-overlay" id="sidebarOverlay"></div>
+      <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+          <h3>Menu U-Find</h3>
+          <button type="button" class="close-sidebar" id="closeSidebarBtn">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+        <a href="DaftarValidasiLaporan.html" class="sidebar-item"
+          >Daftar Validasi Laporan</a
+        >
+        <a href="PemantauanStatus.html" class="sidebar-item"
+          >Pemantauan Status</a
+        >
+        <a href="VerifikasiKlaim.html" class="sidebar-item">Verifikasi Klaim</a>
+        <a href="RekapitulasiLaporan.html" class="sidebar-item"
           >Rekapitulasi Laporan</a
         >
       </nav>
@@ -80,7 +108,25 @@
       </main>
     </div>
 
+    <!-- Modal Konfirmasi Keluar -->
+    <div id="logoutModal" class="modal-overlay">
+      <div class="modal-box center-text">
+        <div class="modal-icon-outline question-icon">
+          <i class="fa-solid fa-question"></i>
+        </div>
+        <h2>Konfirmasi</h2>
+        <p class="modal-desc">Apakah Anda yakin ingin keluar?</p>
+        <div class="modal-footer">
+          <button class="btn-modal-dark btn-outline" id="cancelLogoutBtn">
+            Batal
+          </button>
+          <button class="btn-modal-primary" id="submitLogoutBtn">Ya</button>
+        </div>
+      </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/AdminAuth.js"></script>
     <script src="../js/Dashboard.js"></script>
   </body>
 </html>

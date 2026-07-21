@@ -1,0 +1,16 @@
+{
+  "name": "u-find-stpm",
+  "version": "1.0.0",
+  "description": "U-Find STPM System",
+  "main": "index.html",
+  "scripts": {
+    "format": "prettier --write \"**/*.{js,css,html,json,md}\"",
+    "format:check": "prettier --check \"**/*.{js,css,html,json,md}\""
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "prettier": "^3.0.0"
+  }
+}

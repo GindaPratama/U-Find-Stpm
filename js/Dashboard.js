@@ -1,91 +1,83 @@
-// Dashboard.js (Satpam)
-// Tampilkan NIP asli satpam yang login (bukan teks statis "Pengguna"),
-// urus dropdown profil, dan logout dari Supabase Auth.
+// File Dashboard.js
 
-// ==================== KONFIGURASI SUPABASE ====================
-const SUPABASE_URL = "https://fctpmyobagajyhgnptbj.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_YVSLcfVELiN_hbLy_VdFZQ_QAIcBJ2V";
+document.addEventListener("DOMContentLoaded", () => {
+  // Logika UI Sidebar (Hamburger Menu - Mobile Only)
+  const hamburgerBtn = document.getElementById("hamburgerBtn");
+  const sidebar = document.getElementById("sidebar");
+  const sidebarOverlay = document.getElementById("sidebarOverlay");
+  const closeSidebarBtn = document.getElementById("closeSidebarBtn");
 
-let supabaseClient = null;
-try {
-  supabaseClient = window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_ANON_KEY,
-  );
-} catch (err) {
-  console.error("Supabase belum terhubung dengan sempurna:", err);
-}
-
-// ==========================================
-// 1. DROPDOWN PROFIL (UI, tetap sama seperti sebelumnya)
-// ==========================================
-const profileTrigger = document.getElementById("profileTrigger");
-const profileDropdown = document.getElementById("profileDropdown");
-
-if (profileTrigger && profileDropdown) {
-  profileTrigger.addEventListener("click", (e) => {
-    e.stopPropagation();
-    profileDropdown.classList.toggle("open");
-    profileTrigger.classList.toggle("open");
-  });
-
-  document.addEventListener("click", (e) => {
-    if (
-      !profileDropdown.contains(e.target) &&
-      !profileTrigger.contains(e.target)
-    ) {
-      profileDropdown.classList.remove("open");
-      profileTrigger.classList.remove("open");
+  const toggleSidebar = () => {
+    if (sidebar && sidebarOverlay) {
+      sidebar.classList.toggle("open");
+      sidebarOverlay.classList.toggle("show");
     }
-  });
-}
+  };
 
-// ==========================================
-// 2. AMBIL NIP SATPAM YANG SEDANG LOGIN
-// ==========================================
-document.addEventListener("DOMContentLoaded", async () => {
-  const usernameEl = document.querySelector(".username");
+  if (hamburgerBtn) hamburgerBtn.addEventListener("click", toggleSidebar);
+  if (closeSidebarBtn) closeSidebarBtn.addEventListener("click", toggleSidebar);
+  if (sidebarOverlay) sidebarOverlay.addEventListener("click", toggleSidebar);
 
-  if (!supabaseClient) return;
+  // Logika UI Dropdown Profil
+  const trigger = document.getElementById("profileTrigger");
+  const dropdown = document.getElementById("profileDropdown");
 
-  const {
-    data: { session },
-  } = await supabaseClient.auth.getSession();
+  if (trigger && dropdown) {
+    trigger.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      dropdown.classList.toggle("open");
+      trigger.classList.toggle("open");
+    });
 
-  if (!session) {
-    // Belum login / sesi habis -> lempar balik ke halaman login
-    window.location.href = "../index.html";
-    return;
+    document.addEventListener("click", (e) => {
+      if (!dropdown.contains(e.target) && !trigger.contains(e.target)) {
+        dropdown.classList.remove("open");
+        trigger.classList.remove("open");
+      }
+    });
   }
 
-  const { data: satpamData, error } = await supabaseClient
-    .from("Satpam")
-    .select("NIP_Satpam")
-    .eq("user_id", session.user.id)
-    .maybeSingle();
+  // Logika UI Modal Logout
+  const logoutBtn = document.getElementById("logoutBtn");
+  const logoutModal = document.getElementById("logoutModal");
 
-  if (error) {
-    console.error("Gagal mengambil data satpam:", error);
-    return;
+  if (logoutBtn && logoutModal) {
+    logoutBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      logoutModal.classList.add("show");
+    });
+
+    document
+      .getElementById("cancelLogoutBtn")
+      ?.addEventListener("click", () => {
+        logoutModal.classList.remove("show");
+      });
+
+    document
+      .getElementById("submitLogoutBtn")
+      ?.addEventListener("click", async (e) => {
+        e.target.textContent = "Keluar...";
+        e.target.disabled = true;
+        if (typeof supabaseClient !== "undefined" && supabaseClient) {
+          await supabaseClient.auth.signOut();
+        }
+        sessionStorage.removeItem("loggedInNip");
+        window.location.href = "../index.html";
+      });
   }
 
-  if (satpamData && usernameEl) {
-    usernameEl.textContent = satpamData.NIP_Satpam;
+  // Validasi Sesi & Ambil NIP
+  async function initAuth() {
+    if (typeof requireSatpamSession === "function") {
+      const auth = await requireSatpamSession();
+      if (auth) {
+        document.querySelectorAll(".username").forEach((el) => {
+          el.textContent = auth.satpam.NIP_Satpam;
+        });
+      }
+    }
   }
+
+  initAuth();
 });
-
-// ==========================================
-// 3. LOGOUT
-// ==========================================
-const logoutLink = document.querySelector(".dropdown-item-danger");
-
-if (logoutLink) {
-  logoutLink.addEventListener("click", async (e) => {
-    e.preventDefault();
-    if (supabaseClient) {
-      await supabaseClient.auth.signOut();
-    }
-    sessionStorage.removeItem("loggedInNip");
-    window.location.href = "../index.html";
-  });
-}

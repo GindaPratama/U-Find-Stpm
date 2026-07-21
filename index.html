@@ -4,27 +4,34 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Login Satpam - U-Find</title>
-    <link rel="stylesheet" href="/css/Login.css" />
-    <link rel="icon" href="/assets/img/favicon.ico?v=2" type="image/x-icon" />
+    <link rel="stylesheet" href="css/Login.css" />
+    <link rel="icon" href="assets/img/favicon.ico?v=2" type="image/x-icon" />
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
     />
   </head>
-
   <body>
     <div class="login-container">
+      <!-- BRAND SECTION -->
       <div class="brand-section">
         <img src="assets/img/logo_unikom.png" alt="Logo UNIKOM" class="logo" />
-        <h1>U-Find</h1>
-        <p>TRUST UR HEART, TRUST U-Find</p>
+        <div class="brand-text">
+          <h1>U-Find</h1>
+          <p>TRUST UR HEART, TRUST U-Find</p>
+        </div>
       </div>
 
+      <!-- FORM SECTION -->
       <div class="form-section">
         <div class="login-card">
           <div class="user-icon"></div>
-
-          <form action="html/Dashboard.html" method="GET">
+          <form
+            id="loginForm"
+            action="html/Dashboard.html"
+            method="GET"
+            novalidate
+          >
             <div class="input-group">
               <label for="nip">NIP</label>
               <input
@@ -35,7 +42,6 @@
                 required
               />
             </div>
-
             <div class="input-group">
               <label for="password">Password</label>
               <div class="password-wrapper">
@@ -49,9 +55,7 @@
                 <i class="fa-regular fa-eye" id="togglePassword"></i>
               </div>
             </div>
-
-            <button type="submit" class="btn-login">Login</button>
-
+            <button type="submit" class="btn-login" id="loginBtn">Login</button>
             <div class="action-buttons">
               <a href="html/ResetPassword.html" class="btn-secondary"
                 >Lupa Password</a
@@ -62,7 +66,7 @@
       </div>
     </div>
 
-    <!-- Modal Peringatan (NIM/Password salah, dll) -->
+    <!-- Modal Peringatan -->
     <div class="modal-overlay" id="warningModal">
       <div class="modal-box modal-box-warning">
         <div class="modal-icon-outline">
@@ -76,8 +80,8 @@
       </div>
     </div>
 
-    
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="/js/Login.js"></script>
+    <script src="js/AdminAuth.js"></script>
+    <script src="js/Login.js"></script>
   </body>
 </html>

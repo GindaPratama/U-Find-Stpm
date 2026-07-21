@@ -33,14 +33,15 @@
             </button>
 
             <div class="profile-dropdown" id="profileDropdown">
-              <a href="Profile.html" class="dropdown-item">
+              <a href="#" class="dropdown-item">
                 <i class="fa-regular fa-user"></i>
                 <span>Profil Saya</span>
               </a>
               <div class="dropdown-divider"></div>
               <a
-                href="../index.html"
+                href="#"
                 class="dropdown-item dropdown-item-danger"
+                id="dropdownLogoutBtn"
               >
                 <i class="fa-solid fa-right-from-bracket"></i>
                 <span>Keluar</span>
@@ -74,7 +75,7 @@
               <p id="profileShift">-</p>
             </div>
             <div class="info-group">
-              <label>Nomer Handphone</label>
+              <label>Nomor Handphone</label>
               <p id="profileNoHp">-</p>
             </div>
             <div class="info-group">
@@ -84,14 +85,34 @@
           </div>
 
           <div class="action-buttons">
-            <a href="../index.html" class="btn-keluar" id="btnKeluar">Keluar</a>
+            <button type="button" class="btn-keluar" id="btnKeluarUtama">
+              Keluar
+            </button>
             <a href="Dashboard.html" class="btn-kembali">Kembali</a>
           </div>
         </div>
       </main>
     </div>
 
+    <!-- Modal Konfirmasi Keluar -->
+    <div id="logoutModal" class="modal-overlay">
+      <div class="modal-box center-text">
+        <div class="modal-icon-outline question-icon">
+          <i class="fa-solid fa-question"></i>
+        </div>
+        <h2>Konfirmasi</h2>
+        <p class="modal-desc">Apakah Anda yakin ingin keluar?</p>
+        <div class="modal-footer">
+          <button class="btn-modal-dark btn-outline" id="cancelLogoutBtn">
+            Batal
+          </button>
+          <button class="btn-modal-primary" id="submitLogoutBtn">Ya</button>
+        </div>
+      </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/AdminAuth.js"></script>
     <script src="../js/Profile.js"></script>
   </body>
 </html>

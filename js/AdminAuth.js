@@ -1,6 +1,6 @@
 // ==========================================
-// AdminAuth.js — dipakai bersama di semua halaman admin/satpam
-// (DaftarValidasiLaporan, PemantauanStatus, VerifikasiKlaim, RekapitulasiLaporan)
+// AdminAuth.js
+// Pusat Keamanan Sesi dan Alat Bantu Global
 // ==========================================
 
 const SUPABASE_URL = "https://fctpmyobagajyhgnptbj.supabase.co";
@@ -8,53 +8,13 @@ const SUPABASE_ANON_KEY = "sb_publishable_YVSLcfVELiN_hbLy_VdFZQ_QAIcBJ2V";
 
 let supabaseClient = null;
 try {
-  supabaseClient = window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_ANON_KEY,
-  );
+  supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 } catch (err) {
-  console.error("Supabase belum terhubung dengan sempurna:", err);
-}
-
-// ---------- Dropdown Profil ----------
-const profileTrigger = document.getElementById("profileTrigger");
-const profileDropdown = document.getElementById("profileDropdown");
-
-if (profileTrigger && profileDropdown) {
-  profileTrigger.addEventListener("click", (e) => {
-    e.stopPropagation();
-    profileDropdown.classList.toggle("open");
-    profileTrigger.classList.toggle("open");
-  });
-
-  document.addEventListener("click", (e) => {
-    if (
-      !profileDropdown.contains(e.target) &&
-      !profileTrigger.contains(e.target)
-    ) {
-      profileDropdown.classList.remove("open");
-      profileTrigger.classList.remove("open");
-    }
-  });
-}
-
-// ---------- Logout ----------
-const logoutBtn = document.getElementById("logoutBtn");
-if (logoutBtn) {
-  logoutBtn.addEventListener("click", async (e) => {
-    e.preventDefault();
-    if (supabaseClient) {
-      await supabaseClient.auth.signOut();
-    }
-    window.location.href = "/index.html";
-  });
+  console.error("Gagal menginisialisasi Supabase:", err);
 }
 
 /**
- * Pastikan yang mengakses halaman ini adalah Satpam yang sudah login.
- * Kembalikan data { session, nip } kalau valid, atau redirect ke
- * halaman login & return null kalau tidak valid.
- * Panggil ini di awal tiap file JS halaman admin.
+ * Memastikan sesi login valid dan menarik data lengkap Satpam.
  */
 async function requireSatpamSession() {
   if (!supabaseClient) return null;
@@ -64,33 +24,30 @@ async function requireSatpamSession() {
   } = await supabaseClient.auth.getSession();
 
   if (!session) {
-    window.location.href = "/index.html";
+    window.location.href = "../index.html";
     return null;
   }
 
+  // Mengambil semua data yang dibutuhkan, termasuk untuk Profile
   const { data: satpamData, error } = await supabaseClient
     .from("Satpam")
-    .select("NIP_Satpam, Nama_Lengkap")
+    .select("NIP_Satpam, Nama_Lengkap, Shift_Tugas, No_Hp, Email")
     .eq("user_id", session.user.id)
     .maybeSingle();
 
   if (error || !satpamData) {
-    console.error("Bukan akun Satpam / gagal cek data:", error);
-    window.location.href = "/index.html";
+    window.location.href = "../index.html";
     return null;
-  }
-
-  const usernameEl = document.querySelector(".username");
-  if (usernameEl) {
-    usernameEl.textContent = satpamData.NIP_Satpam;
   }
 
   return { session, satpam: satpamData };
 }
 
-// ---------- Helper umum ----------
+/**
+ * Mencegah serangan XSS pada input teks
+ */
 function escapeHtml(text) {
-  if (text === null || text === undefined) return "";
+  if (text == null) return "";
   return String(text)
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
@@ -98,6 +55,9 @@ function escapeHtml(text) {
     .replace(/"/g, "&quot;");
 }
 
+/**
+ * Mengubah format waktu ISO menjadi teks yang mudah dibaca
+ */
 function formatWaktu(isoString) {
   if (!isoString) return "-";
   const d = new Date(isoString);

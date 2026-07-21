@@ -5,94 +5,158 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Pemantauan Status - U-Find</title>
     <link rel="icon" href="../assets/img/favicon.ico?v=2" type="image/x-icon" />
-    <link rel="stylesheet" href="../css/AdminShared.css" />
     <link rel="stylesheet" href="../css/PemantauanStatus.css" />
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
     />
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   </head>
-
   <body>
-    <nav class="navbar">
-      <div class="nav-left">
-        <img src="../assets/img/logo_unikom.png" alt="Logo" class="nav-logo" />
-        <span class="nav-title">U-Find</span>
-      </div>
-      <div class="nav-right">
-        <div class="profile-menu">
-          <button type="button" class="profile-trigger" id="profileTrigger">
-            <span class="username">Pengguna</span>
-            <i class="fa-solid fa-circle-user profile-icon"></i>
-            <i class="fa-solid fa-chevron-down chevron-icon"></i>
+    <div class="dashboard-wrapper">
+      <header class="navbar">
+        <div class="nav-left">
+          <button type="button" class="hamburger-btn" id="hamburgerBtn">
+            <i class="fa-solid fa-bars"></i>
           </button>
-          <div class="profile-dropdown" id="profileDropdown">
-            <a
-              href="#"
-              class="dropdown-item dropdown-item-danger"
-              id="logoutBtn"
-            >
-              <i class="fa-solid fa-right-from-bracket"></i>
-              <span>Keluar</span>
-            </a>
+          <img
+            src="../assets/img/logo_unikom.png"
+            alt="Logo"
+            class="nav-logo"
+          />
+          <span class="nav-title">U-Find</span>
+        </div>
+        <div class="nav-right">
+          <div class="profile-menu">
+            <button type="button" class="profile-trigger" id="profileTrigger">
+              <span class="username">Pengguna</span>
+              <i class="fa-solid fa-circle-user profile-icon"></i>
+              <i class="fa-solid fa-chevron-down chevron-icon"></i>
+            </button>
+            <div class="profile-dropdown" id="profileDropdown">
+              <a href="Profile.html" class="dropdown-item">
+                <i class="fa-regular fa-user"></i>
+                <span>Profil Saya</span>
+              </a>
+              <div class="dropdown-divider"></div>
+              <a
+                href="#"
+                class="dropdown-item dropdown-item-danger"
+                id="logoutBtn"
+              >
+                <i class="fa-solid fa-right-from-bracket"></i>
+                <span>Keluar</span>
+              </a>
+            </div>
           </div>
         </div>
-      </div>
-    </nav>
+      </header>
 
-    <div class="main-container">
-      <div class="tabs-container">
-        <a href="DaftarValidasiLaporan.html" class="tab-btn"
+      <div class="sidebar-overlay" id="sidebarOverlay"></div>
+      <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+          <h3>Menu U-Find</h3>
+          <button type="button" class="close-sidebar" id="closeSidebarBtn">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+        <a href="Dashboard.html" class="sidebar-item"
+          ><i class="fa-solid fa-house" style="width: 20px"></i> Dashboard</a
+        >
+        <a href="DaftarValidasiLaporan.html" class="sidebar-item"
           >Daftar Validasi Laporan</a
         >
-        <a href="#" class="tab-btn active">Pemantauan Status</a>
-        <a href="VerifikasiKlaim.html" class="tab-btn">Verifikasi Klaim</a>
-        <a href="RekapitulasiLaporan.html" class="tab-btn"
+        <a href="#" class="sidebar-item active">Pemantauan Status</a>
+        <a href="VerifikasiKlaim.html" class="sidebar-item">Verifikasi Klaim</a>
+        <a href="RekapitulasiLaporan.html" class="sidebar-item"
           >Rekapitulasi Laporan</a
         >
-      </div>
+      </nav>
 
-      <div class="table-section">
-        <div class="section-header">
-          <h2 class="section-title">Laporan Barang Hilang & Barang Temuan</h2>
-          <div class="filter-group">
-            <button class="filter-btn active" data-filter="semua">Semua</button>
-            <button class="filter-btn" data-filter="hilang">
-              Laporan Hilang
-            </button>
-            <button class="filter-btn" data-filter="temuan">
-              Laporan Temuan
-            </button>
+      <main class="main-container">
+        <div class="top-controls">
+          <a href="Dashboard.html" class="btn-back"
+            ><i class="fa-solid fa-arrow-left"></i> Kembali</a
+          >
+          <div class="search-box">
+            <input
+              type="text"
+              id="searchInput"
+              placeholder="Cari ID, nama, status..."
+            />
+            <i class="fa-solid fa-magnifying-glass"></i>
           </div>
         </div>
 
-        <div class="table-responsive">
-          <table>
-            <thead>
-              <tr>
-                <th>No</th>
-                <th>Jenis</th>
-                <th>Waktu</th>
-                <th>Nama</th>
-                <th>No HP</th>
-                <th>Nama Barang</th>
-                <th>Gambar</th>
-                <th>Ciri-Ciri Barang</th>
-                <th>Lokasi Kejadian</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody id="statusBody">
-              <tr class="empty-row">
-                <td colspan="10">Memuat data...</td>
-              </tr>
-            </tbody>
-          </table>
+        <div class="tabs-container desktop-tabs">
+          <a href="DaftarValidasiLaporan.html" class="tab-btn"
+            >Daftar Validasi Laporan</a
+          >
+          <a href="#" class="tab-btn active">Pemantauan Status</a>
+          <a href="VerifikasiKlaim.html" class="tab-btn">Verifikasi Klaim</a>
+          <a href="RekapitulasiLaporan.html" class="tab-btn"
+            >Rekapitulasi Laporan</a
+          >
+        </div>
+
+        <div class="table-section">
+          <div class="section-header">
+            <h2 class="section-title">Laporan Barang Hilang & Barang Temuan</h2>
+            <div class="filter-group">
+              <button class="filter-btn active" data-filter="semua">
+                Semua
+              </button>
+              <button class="filter-btn" data-filter="Laporan_Hilang">
+                Laporan Hilang
+              </button>
+              <button class="filter-btn" data-filter="Laporan_Temuan">
+                Laporan Temuan
+              </button>
+            </div>
+          </div>
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>No</th>
+                  <th>ID</th>
+                  <th>Waktu</th>
+                  <th>Nama</th>
+                  <th>No HP</th>
+                  <th>Nama Barang</th>
+                  <th>Gambar Barang</th>
+                  <th>Ciri-Ciri Barang</th>
+                  <th>Lokasi Kejadian</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="statusBody">
+                <tr class="empty-row">
+                  <td colspan="10">Memuat data...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <div id="logoutModal" class="modal-overlay highest-z">
+      <div class="modal-box center-text">
+        <div class="modal-icon-outline question-icon">
+          <i class="fa-solid fa-question"></i>
+        </div>
+        <h2>Konfirmasi</h2>
+        <p class="modal-desc">Apakah Anda yakin ingin keluar?</p>
+        <div class="modal-footer">
+          <button class="btn-modal-dark btn-outline" id="cancelLogoutBtn">
+            Batal
+          </button>
+          <button class="btn-modal-primary" id="submitLogoutBtn">Ya</button>
         </div>
       </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../js/AdminAuth.js"></script>
     <script src="../js/PemantauanStatus.js"></script>
   </body>
