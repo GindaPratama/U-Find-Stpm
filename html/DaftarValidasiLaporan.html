@@ -16,15 +16,10 @@
     <div class="dashboard-wrapper">
       <header class="navbar">
         <div class="nav-left">
-          <!-- Tombol Hamburger (Hanya muncul di Mobile) -->
           <button type="button" class="hamburger-btn" id="hamburgerBtn">
             <i class="fa-solid fa-bars"></i>
           </button>
-          <img
-            src="../assets/img/logo_unikom.png"
-            alt="Logo"
-            class="nav-logo"
-          />
+          <img src="../assets/img/logo_unikom.png" alt="Logo" class="nav-logo" />
           <span class="nav-title">U-Find</span>
         </div>
         <div class="nav-right">
@@ -40,11 +35,7 @@
                 <span>Profil Saya</span>
               </a>
               <div class="dropdown-divider"></div>
-              <a
-                href="#"
-                class="dropdown-item dropdown-item-danger"
-                id="logoutBtn"
-              >
+              <a href="#" class="dropdown-item dropdown-item-danger" id="logoutBtn">
                 <i class="fa-solid fa-right-from-bracket"></i>
                 <span>Keluar</span>
               </a>
@@ -53,7 +44,6 @@
         </div>
       </header>
 
-      <!-- Sidebar Overlay & Menu (Hanya untuk Mobile) -->
       <div class="sidebar-overlay" id="sidebarOverlay"></div>
       <nav class="sidebar" id="sidebar">
         <div class="sidebar-header">
@@ -66,36 +56,22 @@
           ><i class="fa-solid fa-house" style="width: 20px"></i> Dashboard</a
         >
         <a href="#" class="sidebar-item active">Daftar Validasi Laporan</a>
-        <a href="PemantauanStatus.html" class="sidebar-item"
-          >Pemantauan Status</a
-        >
+        <a href="PemantauanStatus.html" class="sidebar-item">Pemantauan Status</a>
         <a href="VerifikasiKlaim.html" class="sidebar-item">Verifikasi Klaim</a>
-        <a href="RekapitulasiLaporan.html" class="sidebar-item"
-          >Rekapitulasi Laporan</a
-        >
+        <a href="RekapitulasiLaporan.html" class="sidebar-item">Rekapitulasi Laporan</a>
       </nav>
 
       <main class="main-container">
-        <!-- Tombol Kembali ke Dashboard -->
-        <a href="Dashboard.html" class="btn-back">
-          <i class="fa-solid fa-arrow-left"></i> Kembali
-        </a>
-
-        <!-- Menu Tabs (Hanya untuk Desktop/Laptop) -->
+        <a href="Dashboard.html" class="btn-back"><i class="fa-solid fa-arrow-left"></i> Kembali</a>
         <div class="tabs-container desktop-tabs">
           <a href="#" class="tab-btn active">Daftar Validasi Laporan</a>
           <a href="PemantauanStatus.html" class="tab-btn">Pemantauan Status</a>
           <a href="VerifikasiKlaim.html" class="tab-btn">Verifikasi Klaim</a>
-          <a href="RekapitulasiLaporan.html" class="tab-btn"
-            >Rekapitulasi Laporan</a
-          >
+          <a href="RekapitulasiLaporan.html" class="tab-btn">Rekapitulasi Laporan</a>
         </div>
 
-        <!-- Laporan Kehilangan -->
         <div class="table-section">
-          <h2 class="section-title">
-            Laporan Kehilangan Barang (Menunggu Validasi)
-          </h2>
+          <h2 class="section-title">Laporan Kehilangan Barang (Menunggu Validasi)</h2>
           <div class="table-responsive">
             <table>
               <thead>
@@ -120,11 +96,8 @@
           </div>
         </div>
 
-        <!-- Laporan Temuan -->
         <div class="table-section">
-          <h2 class="section-title">
-            Laporan Barang Temuan (Menunggu Validasi)
-          </h2>
+          <h2 class="section-title">Laporan Barang Temuan (Menunggu Validasi)</h2>
           <div class="table-responsive">
             <table>
               <thead>
@@ -151,96 +124,105 @@
       </main>
     </div>
 
-    <!-- Modals (Tetap sama) -->
+    <!-- Modal Tolak Laporan -->
     <div id="rejectModal" class="modal-overlay">
       <div class="modal-box">
         <div class="modal-header">
           <h3>Tolak Laporan</h3>
-          <i class="fa-solid fa-xmark close-icon" id="closeRejectModal"></i>
+          <i class="fa-solid fa-xmark close-icon" onclick="closeRejectModal()"></i>
         </div>
-        <div class="modal-body">
-          <textarea
-            id="rejectReason"
-            placeholder="Isi alasan mengapa laporan ditolak"
-          ></textarea>
+        <div class="modal-body" style="text-align: left">
+          <textarea id="rejectReason" placeholder="Isi alasan mengapa laporan ditolak"></textarea>
+          <p
+            id="rejectErrorText"
+            style="
+              color: #ef4444;
+              font-size: 0.8rem;
+              margin-top: 6px;
+              font-weight: 600;
+              display: none;
+            "
+          >
+            <i class="fa-solid fa-circle-exclamation"></i> Alasan penolakan wajib diisi!
+          </p>
         </div>
         <div class="modal-footer">
-          <button class="btn-modal-dark btn-outline" id="cancelRejectBtn">
+          <button type="button" class="btn-modal-dark btn-outline" onclick="closeRejectModal()">
             Batal
           </button>
-          <button class="btn-modal-dark" id="submitRejectBtn">Kirim</button>
+          <button type="button" class="btn-modal-dark" onclick="submitReject(this)">Kirim</button>
         </div>
       </div>
     </div>
 
+    <!-- Modal Sukses Menolak -->
+    <div id="successRejectModal" class="modal-overlay">
+      <div class="modal-box center-text">
+        <div class="modal-icon-outline success-icon"><i class="fa-solid fa-check"></i></div>
+        <h2>Berhasil</h2>
+        <p class="modal-desc">Laporan berhasil ditolak</p>
+        <button type="button" class="btn-modal-primary" onclick="closeSuccessReject()">Ya</button>
+      </div>
+    </div>
+
+    <!-- Modal Konfirmasi Menyetujui -->
     <div id="confirmApproveModal" class="modal-overlay">
       <div class="modal-box center-text">
-        <div class="modal-icon-outline question-icon">
-          <i class="fa-solid fa-question"></i>
-        </div>
+        <div class="modal-icon-outline question-icon"><i class="fa-solid fa-question"></i></div>
         <h2>Konfirmasi</h2>
-        <p class="modal-desc">
-          Apakah Anda yakin ingin menyetujui laporan ini?
-        </p>
+        <p class="modal-desc">Apakah Anda yakin ingin menyetujui laporan ini?</p>
         <div class="modal-footer">
-          <button class="btn-modal-dark btn-outline" id="cancelApproveBtn">
+          <button type="button" class="btn-modal-dark btn-outline" onclick="closeApproveModal()">
             Batal
           </button>
-          <button class="btn-modal-primary" id="submitApproveBtn">Ya</button>
+          <button type="button" class="btn-modal-primary" onclick="submitApprove(this)">Ya</button>
         </div>
       </div>
     </div>
 
+    <!-- Modal Sukses Menyetujui -->
     <div id="successApproveModal" class="modal-overlay">
       <div class="modal-box center-text">
-        <div class="modal-icon-outline success-icon">
-          <i class="fa-solid fa-check"></i>
-        </div>
+        <div class="modal-icon-outline success-icon"><i class="fa-solid fa-check"></i></div>
         <h2>Berhasil</h2>
         <p class="modal-desc">Laporan berhasil diterima</p>
-        <button
-          type="button"
-          class="btn-modal-primary"
-          id="closeSuccessApproveBtn"
-        >
-          Ya
-        </button>
+        <button type="button" class="btn-modal-primary" onclick="closeSuccessApprove()">Ya</button>
       </div>
     </div>
 
+    <!-- Modal Global Error -->
     <div id="warningModal" class="modal-overlay highest-z">
       <div class="modal-box center-text">
-        <div class="modal-icon-outline">
-          <i class="fa-solid fa-exclamation"></i>
-        </div>
+        <div class="modal-icon-outline"><i class="fa-solid fa-exclamation"></i></div>
         <h2>Peringatan</h2>
-        <p class="modal-desc" id="warningMessage">
-          Alasan penolakan wajib diisi!
-        </p>
-        <button type="button" class="btn-modal-dark" id="closeWarningBtn">
+        <p class="modal-desc" id="warningMessage">Terjadi kesalahan.</p>
+        <button
+          type="button"
+          class="btn-modal-dark"
+          onclick="document.getElementById('warningModal').classList.remove('show')"
+        >
           Ok
         </button>
       </div>
     </div>
 
+    <!-- Modal Keluar -->
     <div id="logoutModal" class="modal-overlay highest-z">
       <div class="modal-box center-text">
-        <div class="modal-icon-outline question-icon">
-          <i class="fa-solid fa-question"></i>
-        </div>
+        <div class="modal-icon-outline question-icon"><i class="fa-solid fa-question"></i></div>
         <h2>Konfirmasi</h2>
         <p class="modal-desc">Apakah Anda yakin ingin keluar?</p>
         <div class="modal-footer">
-          <button class="btn-modal-dark btn-outline" id="cancelLogoutBtn">
+          <button type="button" class="btn-modal-dark btn-outline" id="cancelLogoutBtn">
             Batal
           </button>
-          <button class="btn-modal-primary" id="submitLogoutBtn">Ya</button>
+          <button type="button" class="btn-modal-primary" id="submitLogoutBtn">Ya</button>
         </div>
       </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../js/AdminAuth.js"></script>
-    <script src="../js/DaftarValidasiLaporan.js"></script>
+    <script src="../js/DaftarValidasiLaporan.js?v=3"></script>
   </body>
 </html>

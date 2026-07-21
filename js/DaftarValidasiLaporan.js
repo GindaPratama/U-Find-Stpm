@@ -9,22 +9,12 @@ let currentSatpamNIP = null;
 const kehilanganBody = document.getElementById("kehilanganBody");
 const temuanBody = document.getElementById("temuanBody");
 
-// Elemen Modal Peringatan & Pop Up
-const rejectModal = document.getElementById("rejectModal");
-const rejectReason = document.getElementById("rejectReason");
-const confirmApproveModal = document.getElementById("confirmApproveModal");
-const successApproveModal = document.getElementById("successApproveModal");
-const warningModal = document.getElementById("warningModal");
-const warningMessage = document.getElementById("warningMessage");
-
 function showWarning(text) {
-  warningMessage.textContent = text;
-  warningModal.classList.add("show");
+  const warningMessage = document.getElementById("warningMessage");
+  const warningModal = document.getElementById("warningModal");
+  if (warningMessage) warningMessage.textContent = text;
+  if (warningModal) warningModal.classList.add("show");
 }
-
-document
-  .getElementById("closeWarningBtn")
-  ?.addEventListener("click", () => warningModal.classList.remove("show"));
 
 function escapeHtml(text) {
   if (!text) return "-";
@@ -41,7 +31,6 @@ function formatWaktu(iso) {
 // UI LOGIC (Sidebar, Dropdown, Modal Logout)
 // ----------------------------------------------------
 document.addEventListener("DOMContentLoaded", () => {
-  // Sidebar Toggle (Mobile)
   const hamburgerBtn = document.getElementById("hamburgerBtn");
   const sidebar = document.getElementById("sidebar");
   const sidebarOverlay = document.getElementById("sidebarOverlay");
@@ -58,7 +47,6 @@ document.addEventListener("DOMContentLoaded", () => {
   if (closeSidebarBtn) closeSidebarBtn.addEventListener("click", toggleSidebar);
   if (sidebarOverlay) sidebarOverlay.addEventListener("click", toggleSidebar);
 
-  // Profile Dropdown
   const trigger = document.getElementById("profileTrigger");
   const dropdown = document.getElementById("profileDropdown");
   if (trigger && dropdown) {
@@ -76,7 +64,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Logout Modal
   const logoutBtn = document.getElementById("logoutBtn");
   const logoutModal = document.getElementById("logoutModal");
   if (logoutBtn && logoutModal) {
@@ -87,55 +74,63 @@ document.addEventListener("DOMContentLoaded", () => {
     document
       .getElementById("cancelLogoutBtn")
       ?.addEventListener("click", () => logoutModal.classList.remove("show"));
-    document
-      .getElementById("submitLogoutBtn")
-      ?.addEventListener("click", async (e) => {
-        e.target.textContent = "Keluar...";
-        e.target.disabled = true;
-        if (typeof supabaseClient !== "undefined" && supabaseClient)
-          await supabaseClient.auth.signOut();
-        sessionStorage.removeItem("loggedInNip");
-        window.location.href = "../index.html";
-      });
+    document.getElementById("submitLogoutBtn")?.addEventListener("click", async (e) => {
+      e.target.textContent = "Keluar...";
+      e.target.disabled = true;
+      if (typeof supabaseClient !== "undefined" && supabaseClient)
+        await supabaseClient.auth.signOut();
+      sessionStorage.removeItem("loggedInNip");
+      window.location.href = "../index.html";
+    });
   }
 });
 
 // ----------------------------------------------------
-// LOGIKA MODAL PENOLAKAN & PERSETUJUAN
+// LOGIKA MODAL PENOLAKAN (Reject)
 // ----------------------------------------------------
-document
-  .getElementById("closeRejectModal")
-  ?.addEventListener("click", closeRejectModal);
-document
-  .getElementById("cancelRejectBtn")
-  ?.addEventListener("click", closeRejectModal);
-document
-  .getElementById("submitRejectBtn")
-  ?.addEventListener("click", submitReject);
-
-function closeRejectModal() {
-  currentReport = null;
-  rejectModal.classList.remove("show");
-}
-
 window.openRejectModal = function (table, id) {
   currentReport = { table, id };
-  if (rejectReason) rejectReason.value = "";
-  rejectModal.classList.add("show");
+  const rejectReason = document.getElementById("rejectReason");
+  const rejectErrorText = document.getElementById("rejectErrorText");
+
+  if (rejectReason) {
+    rejectReason.value = "";
+    rejectReason.style.borderColor = "var(--border)";
+  }
+  if (rejectErrorText) rejectErrorText.style.display = "none";
+  document.getElementById("rejectModal").classList.add("show");
 };
 
-async function submitReject() {
-  const reason = rejectReason.value.trim();
+window.closeRejectModal = function () {
+  currentReport = null;
+  document.getElementById("rejectModal").classList.remove("show");
+};
+
+window.submitReject = async function (btn) {
+  const rejectReason = document.getElementById("rejectReason");
+  const rejectErrorText = document.getElementById("rejectErrorText");
+  const reason = rejectReason ? rejectReason.value.trim() : "";
+
+  // Validasi Alasan Kosong
   if (!reason) {
-    showWarning("Alasan penolakan wajib diisi!");
+    if (rejectReason) rejectReason.style.borderColor = "#ef4444";
+    if (rejectErrorText) rejectErrorText.style.display = "block";
     return;
   }
+
+  if (rejectReason) rejectReason.style.borderColor = "var(--border)";
+  if (rejectErrorText) rejectErrorText.style.display = "none";
+
   if (!currentReport || !currentSatpamNIP) {
+    console.error("submitReject dibatalkan: currentReport atau currentSatpamNIP kosong", {
+      currentReport,
+      currentSatpamNIP,
+    });
     showWarning("Sesi tidak valid, harap refresh halaman.");
     return;
   }
 
-  const btn = document.getElementById("submitRejectBtn");
+  const originalText = btn.textContent;
   btn.textContent = "Memproses...";
   btn.disabled = true;
 
@@ -143,79 +138,122 @@ async function submitReject() {
   const pkColumn = table === "Laporan_Hilang" ? "Id_Laporan" : "Id_Temuan";
 
   try {
-    const { error } = await supabaseClient
+    const { data, error } = await supabaseClient
       .from(table)
       .update({
-        status: "Laporan Ditolak",
+        status: "Ditolak",
         Catatan_Status: reason,
         NIP_Satpam: currentSatpamNIP,
       })
-      .eq(pkColumn, id);
+      .eq(pkColumn, id)
+      .select();
+
     if (error) throw error;
-    closeRejectModal();
-    await loadData();
+
+    // Kalau RLS diam-diam menolak update, Supabase tidak selalu
+    // melempar `error` -> data yang kembali cuma array kosong.
+    // Kita anggap itu tetap sebagai kegagalan, bukan sukses.
+    if (!data || data.length === 0) {
+      throw new Error("Update tidak diterima database (kemungkinan izin/RLS). Hubungi admin.");
+    }
+
+    document.getElementById("rejectModal").classList.remove("show");
+    setTimeout(() => {
+      const successModal = document.getElementById("successRejectModal");
+      if (successModal) successModal.classList.add("show");
+    }, 250);
   } catch (err) {
-    showWarning("Gagal menolak laporan: " + err.message);
+    console.error("Gagal menolak laporan:", err);
+    document.getElementById("rejectModal").classList.remove("show");
+    setTimeout(() => showWarning("Gagal menolak laporan: " + err.message), 250);
   } finally {
-    btn.textContent = "Kirim";
+    btn.textContent = originalText;
     btn.disabled = false;
   }
-}
+};
 
+window.closeSuccessReject = async function () {
+  const successModal = document.getElementById("successRejectModal");
+  if (successModal) successModal.classList.remove("show");
+  currentReport = null;
+  await loadData();
+};
+
+// ----------------------------------------------------
+// LOGIKA MODAL PERSETUJUAN (Approve)
+// ----------------------------------------------------
 window.approveLaporan = function (table, id) {
   if (!currentSatpamNIP) {
+    console.error("approveLaporan dibatalkan: currentSatpamNIP kosong");
     showWarning("Sesi tidak valid, harap refresh halaman.");
     return;
   }
   currentApproveReport = { table, id };
-  confirmApproveModal.classList.add("show");
+  document.getElementById("confirmApproveModal").classList.add("show");
 };
 
-document.getElementById("cancelApproveBtn")?.addEventListener("click", () => {
+window.closeApproveModal = function () {
   currentApproveReport = null;
-  confirmApproveModal.classList.remove("show");
-});
+  document.getElementById("confirmApproveModal").classList.remove("show");
+};
 
-document
-  .getElementById("submitApproveBtn")
-  ?.addEventListener("click", async () => {
-    if (!currentApproveReport || !currentSatpamNIP) return;
-    const btn = document.getElementById("submitApproveBtn");
-    btn.textContent = "Memproses...";
-    btn.disabled = true;
+window.submitApprove = async function (btn) {
+  if (!currentApproveReport || !currentSatpamNIP) {
+    console.error("submitApprove dibatalkan: currentApproveReport atau currentSatpamNIP kosong", {
+      currentApproveReport,
+      currentSatpamNIP,
+    });
+    return;
+  }
+  const originalText = btn.textContent;
+  btn.textContent = "Memproses...";
+  btn.disabled = true;
 
-    const { table, id } = currentApproveReport;
-    const isHilang = table === "Laporan_Hilang";
-    const pkColumn = isHilang ? "Id_Laporan" : "Id_Temuan";
-    const newStatus = isHilang ? "Sedang Dicari" : "Tersedia dipos";
+  const { table, id } = currentApproveReport;
+  const isHilang = table === "Laporan_Hilang";
+  const pkColumn = isHilang ? "Id_Laporan" : "Id_Temuan";
+  // Status konsisten untuk kedua tabel (sebelumnya beda-beda:
+  // "Sedang Dicari" vs "Tersedia dipos", sekarang disamakan).
+  const newStatus = "Sedang Dicari";
 
-    try {
-      const { error } = await supabaseClient
-        .from(table)
-        .update({
-          status: newStatus,
-          Catatan_Status: null,
-          NIP_Satpam: currentSatpamNIP,
-        })
-        .eq(pkColumn, id);
-      if (error) throw error;
-      confirmApproveModal.classList.remove("show");
-      successApproveModal.classList.add("show");
-    } catch (err) {
-      showWarning("Gagal menyetujui laporan: " + err.message);
-    } finally {
-      btn.textContent = "Ya";
-      btn.disabled = false;
+  try {
+    const { data, error } = await supabaseClient
+      .from(table)
+      .update({
+        status: newStatus,
+        Catatan_Status: null,
+        NIP_Satpam: currentSatpamNIP,
+      })
+      .eq(pkColumn, id)
+      .select();
+
+    if (error) throw error;
+
+    if (!data || data.length === 0) {
+      throw new Error("Update tidak diterima database (kemungkinan izin/RLS). Hubungi admin.");
     }
-  });
 
-document
-  .getElementById("closeSuccessApproveBtn")
-  ?.addEventListener("click", async () => {
-    successApproveModal.classList.remove("show");
-    currentApproveReport = null;
-    await loadData();
-  });
+    document.getElementById("confirmApproveModal").classList.remove("show");
+    setTimeout(() => {
+      const successModal = document.getElementById("successApproveModal");
+      if (successModal) successModal.classList.add("show");
+    }, 250);
+  } catch (err) {
+    console.error("Gagal menyetujui laporan:", err);
+    document.getElementById("confirmApproveModal").classList.remove("show");
+    setTimeout(() => showWarning("Gagal menyetujui laporan: " + err.message), 250);
+  } finally {
+    btn.textContent = originalText;
+    btn.disabled = false;
+  }
+};
+
+window.closeSuccessApprove = async function () {
+  const successModal = document.getElementById("successApproveModal");
+  if (successModal) successModal.classList.remove("show");
+  currentApproveReport = null;
+  await loadData();
+};
 
 // ----------------------------------------------------
 // RENDER TABEL & FETCH DATA
@@ -235,14 +273,15 @@ function renderRows(tbody, rows, table) {
         : `<span style="color:#9aa3b8;">-</span>`;
       const id = row[pkColumn];
       const lokasi = isHilang ? row.Lokasi_Kejadian : row.Lokasi_Penemuan;
+
       return `<tr data-id="${id}">
       <td>${idx + 1}</td><td>${formatWaktu(row.created_at)}</td><td>${escapeHtml(row.Nama_Lengkap_Mhs)}</td>
       <td>${escapeHtml(row.No_Hp_Mhs)}</td><td>${escapeHtml(row.Nama_Barang)}</td><td>${gambar}</td>
       <td style="max-width:200px; white-space:normal;">${escapeHtml(row.Ciri_Khusus)}</td>
       <td style="max-width:180px; white-space:normal;">${escapeHtml(lokasi)}</td>
       <td class="action-cell">
-        <button class="btn-approve" onclick="approveLaporan('${table}', ${id})" title="Setujui"><i class="fa-solid fa-check"></i></button>
-        <button class="btn-reject" onclick="openRejectModal('${table}', ${id})" title="Tolak"><i class="fa-solid fa-xmark"></i></button>
+        <button class="btn-approve" onclick="approveLaporan('${table}', '${id}')" title="Setujui"><i class="fa-solid fa-check"></i></button>
+        <button class="btn-reject" onclick="openRejectModal('${table}', '${id}')" title="Tolak"><i class="fa-solid fa-xmark"></i></button>
       </td>
     </tr>`;
     })
@@ -259,18 +298,14 @@ async function loadData() {
       .order("created_at", { ascending: true });
     if (errHilang) throw errHilang;
     if (kehilangan && kehilangan.length > 0) {
-      const nims = [
-        ...new Set(kehilangan.map((k) => k.NIM_Pelapor).filter(Boolean)),
-      ];
+      const nims = [...new Set(kehilangan.map((k) => k.NIM_Pelapor).filter(Boolean))];
       if (nims.length > 0) {
         const { data: mhsData } = await supabaseClient
           .from("Mahasiswa")
           .select("NIM, Nama_Lengkap, No_Hp")
           .in("NIM", nims);
         kehilangan.forEach((k) => {
-          const mhs = mhsData?.find(
-            (m) => String(m.NIM) === String(k.NIM_Pelapor),
-          );
+          const mhs = mhsData?.find((m) => String(m.NIM) === String(k.NIM_Pelapor));
           k.Nama_Lengkap_Mhs = mhs ? mhs.Nama_Lengkap : "-";
           k.No_Hp_Mhs = mhs ? mhs.No_Hp : "-";
         });
@@ -278,6 +313,7 @@ async function loadData() {
     }
     renderRows(kehilanganBody, kehilangan, "Laporan_Hilang");
   } catch (err) {
+    console.error("Gagal memuat data kehilangan:", err);
     kehilanganBody.innerHTML = `<tr class="empty-row"><td colspan="9">Gagal memuat data kehilangan.</td></tr>`;
   }
 
@@ -289,18 +325,14 @@ async function loadData() {
       .order("created_at", { ascending: true });
     if (errTemuan) throw errTemuan;
     if (temuan && temuan.length > 0) {
-      const nims = [
-        ...new Set(temuan.map((t) => t.NIM_Penemu).filter(Boolean)),
-      ];
+      const nims = [...new Set(temuan.map((t) => t.NIM_Penemu).filter(Boolean))];
       if (nims.length > 0) {
         const { data: mhsData } = await supabaseClient
           .from("Mahasiswa")
           .select("NIM, Nama_Lengkap, No_Hp")
           .in("NIM", nims);
         temuan.forEach((t) => {
-          const mhs = mhsData?.find(
-            (m) => String(m.NIM) === String(t.NIM_Penemu),
-          );
+          const mhs = mhsData?.find((m) => String(m.NIM) === String(t.NIM_Penemu));
           t.Nama_Lengkap_Mhs = mhs ? mhs.Nama_Lengkap : "-";
           t.No_Hp_Mhs = mhs ? mhs.No_Hp : "-";
         });
@@ -308,6 +340,7 @@ async function loadData() {
     }
     renderRows(temuanBody, temuan, "Laporan_Temuan");
   } catch (err) {
+    console.error("Gagal memuat data temuan:", err);
     temuanBody.innerHTML = `<tr class="empty-row"><td colspan="9">Gagal memuat data temuan.</td></tr>`;
   }
 }
@@ -321,6 +354,12 @@ document.addEventListener("DOMContentLoaded", async () => {
         .querySelectorAll(".username")
         .forEach((el) => (el.textContent = auth.satpam.NIP_Satpam));
       await loadData();
+    } else {
+      console.error("requireSatpamSession() mengembalikan null - sesi Satpam tidak valid.");
     }
+  } else {
+    console.error(
+      "requireSatpamSession tidak ditemukan - pastikan AdminAuth.js dimuat sebelum DaftarValidasiLaporan.js"
+    );
   }
 });
