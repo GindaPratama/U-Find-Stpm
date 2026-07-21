@@ -230,11 +230,24 @@ function renderKlaim(rows) {
 
 async function loadData() {
   if (!supabaseClient) return;
+  temuanBody.innerHTML = `<tr class="empty-row"><td colspan="6">Memuat data...</td></tr>`;
+  klaimBody.innerHTML = `<tr class="empty-row"><td colspan="5">Memuat data...</td></tr>`;
+
   try {
+    // 1. Ambil semua klaim yang menunggu verifikasi
+    const { data: klaim, error: errKlaim } = await supabaseClient
+      .from("Klaim_Barang")
+      .select("*")
+      .eq("status", "Menunggu Verifikasi");
+    if (errKlaim) throw errKlaim;
+
+    // 2. Dari klaim yang ada, kumpulkan ID barang temuan yang relevan
+    const relevantTemuanIds = klaim && klaim.length > 0 ? [...new Set(klaim.map((k) => k.Id_Temuan))] : [];
+
     const { data: temuan } = await supabaseClient
       .from("Laporan_Temuan")
       .select("*")
-      .eq("status", "Tersedia dipos")
+      .in("Id_Temuan", relevantTemuanIds) // 3. Hanya ambil barang temuan yang ID-nya ada di daftar klaim
       .order("created_at", { ascending: false });
     if (temuan && temuan.length > 0) {
       const nims = [...new Set(temuan.map((t) => t.NIM_Penemu).filter(Boolean))];
@@ -252,10 +265,6 @@ async function loadData() {
     }
     renderTemuan(temuan);
 
-    const { data: klaim } = await supabaseClient
-      .from("Klaim_Barang")
-      .select("*")
-      .eq("status", "Menunggu Verifikasi");
     if (klaim && klaim.length > 0) {
       const klaimNims = [...new Set(klaim.map((k) => k.NIM_Pengambil).filter(Boolean))];
       let mhsKlaimMap = [];
@@ -266,15 +275,9 @@ async function loadData() {
           .in("NIM", klaimNims);
         mhsKlaimMap = mhsData || [];
       }
-      const temuanIds = [...new Set(klaim.map((k) => k.Id_Temuan).filter(Boolean))];
-      let temuanMap = [];
-      if (temuanIds.length > 0) {
-        const { data: tData } = await supabaseClient
-          .from("Laporan_Temuan")
-          .select("Id_Temuan, Nama_Barang")
-          .in("Id_Temuan", temuanIds);
-        temuanMap = tData || [];
-      }
+
+      // Kita sudah punya data 'temuan' dari query sebelumnya, jadi bisa dipakai ulang
+      const temuanMap = temuan || [];
 
       klaim.forEach((k) => {
         const mhs = mhsKlaimMap.find((m) => String(m.NIM) === String(k.NIM_Pengambil));
@@ -286,7 +289,9 @@ async function loadData() {
     }
     renderKlaim(klaim);
   } catch (err) {
-    showWarning("Gagal menarik data dari server.");
+    showWarning("Gagal menarik data dari server: " + err.message);
+    temuanBody.innerHTML = `<tr class="empty-row"><td colspan="6">Gagal memuat data.</td></tr>`;
+    klaimBody.innerHTML = `<tr class="empty-row"><td colspan="5">Gagal memuat data.</td></tr>`;
   }
 }
 
