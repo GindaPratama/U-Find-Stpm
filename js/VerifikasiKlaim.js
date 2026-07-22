@@ -128,11 +128,15 @@ async function submitRejectKlaim() {
   btn.disabled = true;
 
   try {
-    const { error } = await supabaseClient
+    const { data, error } = await supabaseClient
       .from("Klaim_Barang")
       .update({ status: "Ditolak", Catatan_Status: reason, NIP_Satpam: currentSatpamNIP })
-      .eq("Id_Klaim", currentRejectKlaimId);
+      .eq("Id_Klaim", currentRejectKlaimId)
+      .select();
     if (error) throw error;
+    if (!data || data.length === 0) {
+      throw new Error("Update tidak diterima database (kemungkinan izin/RLS). Hubungi admin.");
+    }
     closeRejectModal();
     await loadData();
   } catch (err) {
@@ -169,15 +173,29 @@ document.getElementById("submitApproveBtn")?.addEventListener("click", async () 
   const { klaimId, temuanId } = currentApproveKlaim;
 
   try {
-    const { error: errKlaim } = await supabaseClient
+    const { data: dataKlaim, error: errKlaim } = await supabaseClient
       .from("Klaim_Barang")
       .update({ status: "Selesai", Catatan_Status: null, NIP_Satpam: currentSatpamNIP })
-      .eq("Id_Klaim", klaimId);
+      .eq("Id_Klaim", klaimId)
+      .select();
     if (errKlaim) throw errKlaim;
-    const { error: errTemuan } = await supabaseClient
+    if (!dataKlaim || dataKlaim.length === 0) {
+      throw new Error(
+        "Update Klaim_Barang tidak diterima database (kemungkinan izin/RLS). Hubungi admin."
+      );
+    }
+
+    const { data: dataTemuan, error: errTemuan } = await supabaseClient
       .from("Laporan_Temuan")
       .update({ status: "Selesai" })
-      .eq("Id_Temuan", temuanId);
+      .eq("Id_Temuan", temuanId)
+      .select();
+    if (errTemuan) throw errTemuan;
+    if (!dataTemuan || dataTemuan.length === 0) {
+      throw new Error(
+        "Update Laporan_Temuan tidak diterima database (kemungkinan izin/RLS). Hubungi admin."
+      );
+    }
 
     confirmApproveModal.classList.remove("show");
     successApproveModal.classList.add("show");
@@ -242,7 +260,8 @@ async function loadData() {
     if (errKlaim) throw errKlaim;
 
     // 2. Dari klaim yang ada, kumpulkan ID barang temuan yang relevan
-    const relevantTemuanIds = klaim && klaim.length > 0 ? [...new Set(klaim.map((k) => k.Id_Temuan))] : [];
+    const relevantTemuanIds =
+      klaim && klaim.length > 0 ? [...new Set(klaim.map((k) => k.Id_Temuan))] : [];
 
     const { data: temuan } = await supabaseClient
       .from("Laporan_Temuan")
