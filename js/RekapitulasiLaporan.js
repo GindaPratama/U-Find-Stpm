@@ -146,6 +146,7 @@ async function loadData() {
 
     currentData = { hilang: countHilang || 0, temuan: countTemuan || 0, klaim: countKlaim || 0 };
     updateUI();
+    updateUI(start, end);
   } catch (err) {
     errorMessage.textContent = err.message || "Gagal mengambil data dari server.";
     errorModal.classList.add("show");
@@ -153,6 +154,11 @@ async function loadData() {
 }
 
 function updateUI() {
+  const start = startDateInput.value;
+  const end = endDateInput.value;
+  const labelPeriode = `${formatDateToDMY(start)} - ${formatDateToDMY(end)}`;
+  tabelPeriodeLabel.textContent = labelPeriode;
+  chartPeriodeLabel.textContent = labelPeriode;
   tdTotalHilang.textContent = currentData.hilang;
   tdTotalTemuan.textContent = currentData.temuan;
   tdTotalKlaim.textContent = currentData.klaim;
