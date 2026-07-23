@@ -224,9 +224,11 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (typeof requireSatpamSession === "function") {
     const auth = await requireSatpamSession();
     if (auth) {
-      document
-        .querySelectorAll(".username")
-        .forEach((el) => (el.textContent = auth.satpam.NIP_Satpam));
+      currentSatpamNIP = auth.satpam.NIP_Satpam;
+      document.querySelectorAll(".username").forEach((el) => {
+        const fullName = auth.satpam.Nama_Lengkap || "Satpam";
+        el.textContent = fullName.trim().split(/\s+/).slice(0, 2).join(" ");
+      });
       setDefaultDates();
       await loadData();
     }

@@ -13,36 +13,29 @@
   </head>
   <body>
     <div class="dashboard-wrapper">
+      <!-- NAVBAR -->
       <header class="navbar">
         <div class="nav-left">
-          <a href="../index.html">
-            <img
-              src="../assets/img/logo_unikom.png"
-              alt="Logo UNIKOM"
-              class="nav-logo"
-            />
+          <a href="Dashboard.html">
+            <img src="../assets/img/logo_unikom.png" alt="Logo UNIKOM" class="nav-logo" />
           </a>
           <span class="nav-title">U-Find</span>
         </div>
         <div class="nav-right">
           <div class="profile-menu">
             <button type="button" class="profile-trigger" id="profileTrigger">
-              <span class="username">Pengguna</span>
+              <!-- Username 2 kata -->
+              <span class="username" id="navUsername">Memuat...</span>
               <i class="fa-solid fa-circle-user profile-icon"></i>
               <i class="fa-solid fa-chevron-down chevron-icon"></i>
             </button>
-
             <div class="profile-dropdown" id="profileDropdown">
               <a href="#" class="dropdown-item">
                 <i class="fa-regular fa-user"></i>
                 <span>Profil Saya</span>
               </a>
               <div class="dropdown-divider"></div>
-              <a
-                href="#"
-                class="dropdown-item dropdown-item-danger"
-                id="dropdownLogoutBtn"
-              >
+              <a href="#" class="dropdown-item dropdown-item-danger" id="dropdownLogoutBtn">
                 <i class="fa-solid fa-right-from-bracket"></i>
                 <span>Keluar</span>
               </a>
@@ -51,62 +44,93 @@
         </div>
       </header>
 
+      <!-- MAIN CONTENT -->
       <main class="main-content">
         <div class="profile-card">
           <div class="profile-header">
-            <i class="fa-solid fa-circle-user"></i>
-            <div>
-              <p class="name-top" id="profileNamaTop">Memuat...</p>
-              <p class="role-top">Satpam</p>
+            <i class="fa-solid fa-circle-user avatar-icon"></i>
+            <div class="profile-title">
+              <h2 id="profileNamaTop">Memuat...</h2>
+              <p>Satpam</p>
             </div>
           </div>
 
-          <div class="profile-info">
-            <div class="info-group">
-              <label>Nama</label>
-              <p id="profileNama">-</p>
+          <div class="profile-grid">
+            <!-- NAMA (BISA DIEDIT) -->
+            <div class="info-card editable-card">
+              <label>NAMA</label>
+              <div class="input-wrapper">
+                <input type="text" id="inputNama" value="Memuat..." disabled />
+                <button type="button" id="btnEditNama" class="btn-edit" title="Edit Nama">
+                  <i class="fa-solid fa-pen"></i>
+                </button>
+              </div>
+              <div class="edit-actions hidden" id="actionEditGroup">
+                <button type="button" id="btnBatalEdit" class="btn-cancel-sm">Batal</button>
+                <button type="button" id="btnSimpanEdit" class="btn-save-sm">Simpan</button>
+              </div>
             </div>
-            <div class="info-group">
+
+            <!-- NIP -->
+            <div class="info-card">
               <label>NIP</label>
               <p id="profileNip">-</p>
             </div>
-            <div class="info-group">
-              <label>Shift</label>
+
+            <!-- SHIFT -->
+            <div class="info-card">
+              <label>SHIFT</label>
               <p id="profileShift">-</p>
             </div>
-            <div class="info-group">
-              <label>Nomor Handphone</label>
+
+            <!-- NO HP -->
+            <div class="info-card">
+              <label>NOMOR HANDPHONE</label>
               <p id="profileNoHp">-</p>
             </div>
-            <div class="info-group">
-              <label>Email</label>
+
+            <!-- EMAIL -->
+            <div class="info-card">
+              <label>EMAIL</label>
               <p id="profileEmail">-</p>
             </div>
           </div>
 
           <div class="action-buttons">
-            <button type="button" class="btn-keluar" id="btnKeluarUtama">
-              Keluar
-            </button>
+            <button type="button" class="btn-keluar" id="btnKeluarUtama">Keluar</button>
             <a href="Dashboard.html" class="btn-kembali">Kembali</a>
           </div>
         </div>
       </main>
     </div>
 
-    <!-- Modal Konfirmasi Keluar -->
-    <div id="logoutModal" class="modal-overlay">
-      <div class="modal-box center-text">
-        <div class="modal-icon-outline question-icon">
+    <!-- MODAL LOGOUT -->
+    <div class="modal-overlay" id="logoutModal">
+      <div class="modal-box modal-box-confirm">
+        <div class="modal-icon-outline modal-icon-question">
           <i class="fa-solid fa-question"></i>
         </div>
         <h2>Konfirmasi</h2>
-        <p class="modal-desc">Apakah Anda yakin ingin keluar?</p>
-        <div class="modal-footer">
-          <button class="btn-modal-dark btn-outline" id="cancelLogoutBtn">
-            Batal
+        <p>Apakah Anda yakin<br />ingin keluar?</p>
+        <div class="modal-actions">
+          <button type="button" class="modal-btn-dark" id="submitLogoutBtn">Ya</button>
+          <button type="button" class="modal-btn-dark" id="cancelLogoutBtn">Tidak</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL SUKSES UPDATE NAMA -->
+    <div class="modal-overlay" id="successUpdateModal">
+      <div class="modal-box modal-box-confirm">
+        <div class="modal-icon-outline modal-icon-success">
+          <i class="fa-solid fa-check"></i>
+        </div>
+        <h2>Berhasil</h2>
+        <p>Nama berhasil diperbarui.</p>
+        <div class="modal-actions" style="justify-content: center">
+          <button type="button" class="modal-btn-dark" id="successOkBtn" style="max-width: 150px">
+            OK
           </button>
-          <button class="btn-modal-primary" id="submitLogoutBtn">Ya</button>
         </div>
       </div>
     </div>

@@ -345,13 +345,15 @@ async function loadData() {
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
+  // SESUDAH
   if (typeof requireSatpamSession === "function") {
     const auth = await requireSatpamSession();
     if (auth) {
       currentSatpamNIP = auth.satpam.NIP_Satpam;
-      document
-        .querySelectorAll(".username")
-        .forEach((el) => (el.textContent = auth.satpam.NIP_Satpam));
+      document.querySelectorAll(".username").forEach((el) => {
+        const fullName = auth.satpam.Nama_Lengkap || "Satpam";
+        el.textContent = fullName.trim().split(/\s+/).slice(0, 2).join(" ");
+      });
       await loadData();
     } else {
       console.error("requireSatpamSession() mengembalikan null - sesi Satpam tidak valid.");

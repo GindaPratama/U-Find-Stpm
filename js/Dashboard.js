@@ -48,32 +48,31 @@ document.addEventListener("DOMContentLoaded", () => {
       logoutModal.classList.add("show");
     });
 
-    document
-      .getElementById("cancelLogoutBtn")
-      ?.addEventListener("click", () => {
-        logoutModal.classList.remove("show");
-      });
+    document.getElementById("cancelLogoutBtn")?.addEventListener("click", () => {
+      logoutModal.classList.remove("show");
+    });
 
-    document
-      .getElementById("submitLogoutBtn")
-      ?.addEventListener("click", async (e) => {
-        e.target.textContent = "Keluar...";
-        e.target.disabled = true;
-        if (typeof supabaseClient !== "undefined" && supabaseClient) {
-          await supabaseClient.auth.signOut();
-        }
-        sessionStorage.removeItem("loggedInNip");
-        window.location.href = "../index.html";
-      });
+    document.getElementById("submitLogoutBtn")?.addEventListener("click", async (e) => {
+      e.target.textContent = "Keluar...";
+      e.target.disabled = true;
+      if (typeof supabaseClient !== "undefined" && supabaseClient) {
+        await supabaseClient.auth.signOut();
+      }
+      sessionStorage.removeItem("loggedInNip");
+      window.location.href = "../index.html";
+    });
   }
 
   // Validasi Sesi & Ambil NIP
   async function initAuth() {
+    // SESUDAH
     if (typeof requireSatpamSession === "function") {
       const auth = await requireSatpamSession();
       if (auth) {
+        currentSatpamNIP = auth.satpam.NIP_Satpam;
         document.querySelectorAll(".username").forEach((el) => {
-          el.textContent = auth.satpam.NIP_Satpam;
+          const fullName = auth.satpam.Nama_Lengkap || "Satpam";
+          el.textContent = fullName.trim().split(/\s+/).slice(0, 2).join(" ");
         });
       }
     }
