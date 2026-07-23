@@ -2,149 +2,13 @@
 // PemantauanStatus.js
 // ==========================================
 
-let allRows = [];
-let currentFilter = "semua";
-const statusBody = document.getElementById("statusBody");
-const filterButtons = document.querySelectorAll(".filter-btn");
-const searchInput = document.getElementById("searchInput");
-
-function escapeHtml(text) {
-  if (text === null || text === undefined || text === "") return "-";
-  return String(text).replace(/</g, "&lt;").replace(/>/g, "&gt;");
-}
-
-function formatWaktu(iso) {
-  if (!iso) return "-";
-  const d = new Date(iso);
-  return `${String(d.getHours()).padStart(2, "0")}.${String(d.getMinutes()).padStart(2, "0")} WIB<br>${d.toLocaleDateString("id-ID")}`;
-}
-
-const STATUS_CONFIG = {
-  "Menunggu Validasi": { cls: "status-pending" },
-  "Sedang Dicari": { cls: "status-searching" },
-  "Laporan Ditolak": { cls: "status-rejected" },
-  "Tersedia dipos": { cls: "status-found" },
-  Selesai: { cls: "status-done" },
-};
-
-function renderStatusCell(row) {
-  const cfg = STATUS_CONFIG[row.status] || { cls: "status-pending" };
-  let html = `<span class="status-pill ${cfg.cls}">${escapeHtml(row.status)}</span>`;
-  if (row.status === "Laporan Ditolak" && row.Catatan_Status) {
-    html += `<span class="status-note">! ${escapeHtml(row.Catatan_Status)}</span>`;
-  }
-  return html;
-}
-
-function renderRows(rows) {
-  if (!rows || rows.length === 0) {
-    statusBody.innerHTML = `<tr class="empty-row"><td colspan="10">Tidak ada data ditemukan.</td></tr>`;
-    return;
-  }
-  statusBody.innerHTML = rows
-    .map((row, idx) => {
-      const gambar = row.Foto_Barang
-        ? `<img src="${escapeHtml(row.Foto_Barang)}" alt="Barang" />`
-        : `<span style="color:#9aa3b8;">-</span>`;
-      return `
-      <tr>
-        <td>${idx + 1}</td>
-        <td style="font-weight:600; color:var(--navy-900); white-space:nowrap;">${row.displayId}</td>
-        <td>${formatWaktu(row.created_at)}</td>
-        <td>${escapeHtml(row.Nama_Lengkap_Mhs)}</td>
-        <td>${escapeHtml(row.No_Hp_Mhs)}</td>
-        <td>${escapeHtml(row.Nama_Barang)}</td>
-        <td>${gambar}</td>
-        <td style="max-width:200px; white-space:normal;">${escapeHtml(row.Ciri_Khusus)}</td>
-        <td style="max-width:180px; white-space:normal;">${escapeHtml(row.lokasi)}</td>
-        <td>${renderStatusCell(row)}</td>
-      </tr>
-    `;
-    })
-    .join("");
-}
-
-function applyFilters() {
-  const query = searchInput ? searchInput.value.toLowerCase().trim() : "";
-  let filtered = allRows.filter((row) => {
-    let matchTab = currentFilter === "semua" || row.table === currentFilter;
-    const matchSearch =
-      (row.displayId || "").toLowerCase().includes(query) ||
-      (row.Nama_Lengkap_Mhs || "").toLowerCase().includes(query) ||
-      (row.Nama_Barang || "").toLowerCase().includes(query) ||
-      (row.status || "").toLowerCase().includes(query);
-    return matchTab && matchSearch;
-  });
-  renderRows(filtered);
-}
-
-filterButtons.forEach((btn) => {
-  btn.addEventListener("click", () => {
-    filterButtons.forEach((b) => b.classList.remove("active"));
-    btn.classList.add("active");
-    currentFilter = btn.dataset.filter;
-    applyFilters();
-  });
-});
-
-if (searchInput) searchInput.addEventListener("keyup", applyFilters);
-
-async function loadData() {
-  if (!supabaseClient) return;
-  statusBody.innerHTML = `<tr class="empty-row"><td colspan="10">Memuat data dari server...</td></tr>`;
-
-  try {
-    const { data: hilang } = await supabaseClient.from("Laporan_Hilang").select("*");
-    const { data: temuan } = await supabaseClient.from("Laporan_Temuan").select("*");
-    let tempRows = [];
-
-    if (hilang) {
-      hilang.forEach((h) => {
-        tempRows.push({
-          ...h,
-          table: "Laporan_Hilang",
-          displayId: "LH-" + String(h.Id_Laporan).padStart(3, "0"),
-          nimRelation: h.NIM_Pelapor,
-          lokasi: h.Lokasi_Kejadian,
-        });
-      });
-    }
-    if (temuan) {
-      temuan.forEach((t) => {
-        tempRows.push({
-          ...t,
-          table: "Laporan_Temuan",
-          displayId: "LT-" + String(t.Id_Temuan).padStart(3, "0"),
-          nimRelation: t.NIM_Penemu,
-          lokasi: t.Lokasi_Penemuan,
-        });
-      });
-    }
-
-    const nims = [...new Set(tempRows.map((r) => r.nimRelation).filter(Boolean))];
-    if (nims.length > 0) {
-      const { data: mhsData } = await supabaseClient
-        .from("Mahasiswa")
-        .select("NIM, Nama_Lengkap, No_Hp")
-        .in("NIM", nims);
-      tempRows.forEach((row) => {
-        const mhs = mhsData?.find((m) => String(m.NIM) === String(row.nimRelation));
-        row.Nama_Lengkap_Mhs = mhs ? mhs.Nama_Lengkap : "-";
-        row.No_Hp_Mhs = mhs ? mhs.No_Hp : "-";
-      });
-    }
-
-    allRows = tempRows.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-    applyFilters();
-  } catch (err) {
-    statusBody.innerHTML = `<tr class="empty-row"><td colspan="10">Gagal memuat data.</td></tr>`;
-  }
-}
+const tbody = document.querySelector("tbody");
+const searchInput = document.querySelector('input[type="text"]');
 
 // ----------------------------------------------------
-// UI LOGIC (Sidebar, Dropdown, Modal)
+// UI LOGIC (Sidebar, Dropdown, Modal Logout)
 // ----------------------------------------------------
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
   const hamburgerBtn = document.getElementById("hamburgerBtn");
   const sidebar = document.getElementById("sidebar");
   const sidebarOverlay = document.getElementById("sidebarOverlay");
@@ -191,23 +55,209 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("submitLogoutBtn")?.addEventListener("click", async (e) => {
       e.target.textContent = "Keluar...";
       e.target.disabled = true;
-      if (typeof supabaseClient !== "undefined" && supabaseClient)
-        await supabaseClient.auth.signOut();
+      if (typeof supabaseClient !== "undefined") await supabaseClient.auth.signOut();
       sessionStorage.removeItem("loggedInNip");
       window.location.href = "../index.html";
     });
   }
 
-  async function initAuth() {
-    if (typeof requireSatpamSession === "function") {
-      const auth = await requireSatpamSession();
-      if (auth) {
-        document
-          .querySelectorAll(".username")
-          .forEach((el) => (el.textContent = auth.satpam.NIP_Satpam));
-        await loadData();
-      }
+  // Pastikan ada sesi Satpam
+  if (typeof requireSatpamSession === "function") {
+    const auth = await requireSatpamSession();
+    if (auth) {
+      document
+        .querySelectorAll(".username")
+        .forEach((el) => (el.textContent = auth.satpam.NIP_Satpam));
+      await loadData();
     }
+  } else {
+    await loadData();
   }
-  initAuth();
 });
+
+function escapeHtml(text) {
+  if (text === null || text === undefined || text === "") return "-";
+  return String(text).replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+function formatWaktu(iso) {
+  if (!iso) return "-";
+  const d = new Date(iso);
+  return `${String(d.getHours()).padStart(2, "0")}.${String(d.getMinutes()).padStart(2, "0")} WIB<br>${d.toLocaleDateString("id-ID")}`;
+}
+
+function getStatusColor(status) {
+  if (status === "Selesai") return "color: #22c55e;"; // Hijau
+  if (status === "Sedang Dicari") return "color: #ef4444;"; // Merah
+  if (status === "Tersedia dipos") return "color: #2f6fd1;"; // Biru
+  return "color: #e3a53a;"; // Kuning/Gold
+}
+
+// ----------------------------------------------------
+// FETCH DATA DENGAN FIX "SELESAI"
+// ----------------------------------------------------
+async function loadData() {
+  if (!supabaseClient || !tbody) return;
+  tbody.innerHTML = `<tr><td colspan="10" style="text-align: center; padding: 20px;">Memuat data...</td></tr>`;
+
+  try {
+    // 1. FIX: Tarik semua Laporan Hilang KECUALI yang "Menunggu Validasi"
+    const { data: hilang, error: errHilang } = await supabaseClient
+      .from("Laporan_Hilang")
+      .select("*")
+      .neq("status", "Menunggu Validasi");
+    if (errHilang) throw errHilang;
+
+    // 2. FIX: Tarik semua Laporan Temuan KECUALI yang "Menunggu Validasi"
+    const { data: temuan, error: errTemuan } = await supabaseClient
+      .from("Laporan_Temuan")
+      .select("*")
+      .neq("status", "Menunggu Validasi");
+    if (errTemuan) throw errTemuan;
+
+    let allData = [];
+
+    if (hilang) {
+      hilang.forEach((h) => {
+        allData.push({
+          raw_date: new Date(h.created_at || 0).getTime(),
+          waktuStr: formatWaktu(h.created_at),
+          id_display: `LH-${String(h.Id_Laporan).padStart(3, "0")}`,
+          nim: h.NIM_Pelapor,
+          nama_barang: h.Nama_Barang,
+          gambar: h.Foto_Barang,
+          ciri: h.Ciri_Khusus,
+          lokasi: h.Lokasi_Kejadian,
+          status: h.status,
+          type: "hilang",
+        });
+      });
+    }
+
+    if (temuan) {
+      temuan.forEach((t) => {
+        allData.push({
+          raw_date: new Date(t.created_at || 0).getTime(),
+          waktuStr: formatWaktu(t.created_at),
+          id_display: `LT-${String(t.Id_Temuan).padStart(3, "0")}`,
+          nim: t.NIM_Penemu,
+          nama_barang: t.Nama_Barang,
+          gambar: t.Foto_Barang,
+          ciri: t.Ciri_Khusus,
+          lokasi: t.Lokasi_Penemuan,
+          status: t.status,
+          type: "temuan",
+        });
+      });
+    }
+
+    // Urutkan dari yang paling baru
+    allData.sort((a, b) => b.raw_date - a.raw_date);
+
+    // Ambil Data Mahasiswa (Nama & No HP)
+    const nims = [...new Set(allData.map((d) => d.nim).filter(Boolean))];
+    let mhsMap = [];
+    if (nims.length > 0) {
+      const { data: mhsData } = await supabaseClient
+        .from("Mahasiswa")
+        .select("NIM, Nama_Lengkap, No_Hp")
+        .in("NIM", nims);
+      mhsMap = mhsData || [];
+    }
+
+    if (allData.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="10" style="text-align: center; padding: 20px;">Tidak ada laporan tersedia.</td></tr>`;
+      return;
+    }
+
+    // Simpan ke memori global untuk fitur Filter & Search
+    window.allStatusData = allData;
+    window.mhsStatusMap = mhsMap;
+
+    // Render Data Default
+    renderTableData(allData, mhsMap);
+  } catch (err) {
+    console.error(err);
+    tbody.innerHTML = `<tr><td colspan="10" style="text-align: center; padding: 20px; color: red;">Gagal memuat data: ${err.message}</td></tr>`;
+  }
+}
+
+// ----------------------------------------------------
+// RENDER TABEL
+// ----------------------------------------------------
+function renderTableData(dataArray, mhsMap) {
+  if (!tbody) return;
+  if (dataArray.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="10" style="text-align: center; padding: 20px;">Data tidak ditemukan.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = dataArray
+    .map((d, index) => {
+      const mhs = mhsMap.find((m) => String(m.NIM) === String(d.nim));
+      const namaMhs = mhs ? mhs.Nama_Lengkap : "Akun Testing";
+      const noHp = mhs ? mhs.No_Hp : "-";
+
+      const imgHtml = d.gambar
+        ? `<img src="${escapeHtml(d.gambar)}" alt="Barang" style="width: 60px; height: 40px; object-fit: cover; border-radius: 6px; border: 1px solid var(--border);" />`
+        : `<span style="color:#9aa3b8;">-</span>`;
+
+      return `
+      <tr>
+        <td>${index + 1}</td>
+        <td style="font-weight: 600;">${d.id_display}</td>
+        <td>${d.waktuStr}</td>
+        <td>${escapeHtml(namaMhs)}</td>
+        <td>${escapeHtml(noHp)}</td>
+        <td>${escapeHtml(d.nama_barang)}</td>
+        <td>${imgHtml}</td>
+        <td style="max-width: 200px; white-space: normal;">${escapeHtml(d.ciri)}</td>
+        <td style="max-width: 150px; white-space: normal;">${escapeHtml(d.lokasi)}</td>
+        <td style="${getStatusColor(d.status)} font-weight: 700;">${escapeHtml(d.status)}</td>
+      </tr>
+    `;
+    })
+    .join("");
+}
+
+// ----------------------------------------------------
+// LOGIKA FITUR FILTER (Pill Button & Search)
+// ----------------------------------------------------
+document.addEventListener("click", (e) => {
+  const btn = e.target.closest("button");
+  if (!btn || !window.allStatusData) return;
+
+  const text = btn.textContent.trim().toLowerCase();
+
+  if (text === "semua") {
+    renderTableData(window.allStatusData, window.mhsStatusMap);
+  } else if (text === "laporan hilang") {
+    const filtered = window.allStatusData.filter((d) => d.type === "hilang");
+    renderTableData(filtered, window.mhsStatusMap);
+  } else if (text === "laporan temuan") {
+    const filtered = window.allStatusData.filter((d) => d.type === "temuan");
+    renderTableData(filtered, window.mhsStatusMap);
+  }
+});
+
+// Fitur Live Search
+if (searchInput) {
+  searchInput.addEventListener("input", (e) => {
+    const keyword = e.target.value.toLowerCase();
+    if (!window.allStatusData) return;
+
+    const filtered = window.allStatusData.filter((d) => {
+      const mhs = window.mhsStatusMap.find((m) => String(m.NIM) === String(d.nim));
+      const namaMhs = (mhs ? mhs.Nama_Lengkap : "").toLowerCase();
+
+      return (
+        d.id_display.toLowerCase().includes(keyword) ||
+        d.nama_barang.toLowerCase().includes(keyword) ||
+        d.status.toLowerCase().includes(keyword) ||
+        namaMhs.includes(keyword) ||
+        d.lokasi.toLowerCase().includes(keyword)
+      );
+    });
+    renderTableData(filtered, window.mhsStatusMap);
+  });
+}
