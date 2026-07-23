@@ -40,7 +40,6 @@ function formatWaktu(iso) {
 // UI LOGIC (Sidebar, Dropdown, Modal Logout)
 // ----------------------------------------------------
 document.addEventListener("DOMContentLoaded", () => {
-  // Sidebar Toggle (Mobile)
   const hamburgerBtn = document.getElementById("hamburgerBtn");
   const sidebar = document.getElementById("sidebar");
   const sidebarOverlay = document.getElementById("sidebarOverlay");
@@ -57,7 +56,6 @@ document.addEventListener("DOMContentLoaded", () => {
   if (closeSidebarBtn) closeSidebarBtn.addEventListener("click", toggleSidebar);
   if (sidebarOverlay) sidebarOverlay.addEventListener("click", toggleSidebar);
 
-  // Profile Dropdown
   const trigger = document.getElementById("profileTrigger");
   const dropdown = document.getElementById("profileDropdown");
   if (trigger && dropdown) {
@@ -75,7 +73,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Logout Modal
   const logoutBtn = document.getElementById("logoutBtn");
   const logoutModal = document.getElementById("logoutModal");
   if (logoutBtn && logoutModal) {
@@ -128,17 +125,17 @@ async function submitRejectKlaim() {
   btn.disabled = true;
 
   try {
-    const { data, error } = await supabaseClient
+    const { data: dKlaim, error: errKlaim } = await supabaseClient
       .from("Klaim_Barang")
       .update({ status: "Ditolak", Catatan_Status: reason, NIP_Satpam: currentSatpamNIP })
       .eq("Id_Klaim", currentRejectKlaimId)
-      .select();
-    if (error) throw error;
-    if (!data || data.length === 0) {
-      throw new Error("Update tidak diterima database (kemungkinan izin/RLS). Hubungi admin.");
-    }
+      .select(); // Menggunakan .select() untuk memaksa error jika diblokir RLS
+    if (errKlaim) throw errKlaim;
+    if (!dKlaim || dKlaim.length === 0)
+      throw new Error("Akses diblokir oleh keamanan database Supabase.");
+
     closeRejectModal();
-    await loadData();
+    await loadData(); // Render ulang agar otomatis hilang
   } catch (err) {
     showWarning("Gagal menolak klaim: " + err.message);
   } finally {
@@ -148,14 +145,14 @@ async function submitRejectKlaim() {
 }
 
 // ----------------------------------------------------
-// LOGIKA MENYETUJUI KLAIM
+// LOGIKA MENYETUJUI KLAIM (TERKONEKSI KE SEMUA TABEL)
 // ----------------------------------------------------
-window.approveKlaim = function (klaimId, temuanId) {
+window.approveKlaim = function (klaimId, temuanId, laporanId) {
   if (!currentSatpamNIP) {
     showWarning("Sesi tidak valid, harap refresh halaman.");
     return;
   }
-  currentApproveKlaim = { klaimId, temuanId };
+  currentApproveKlaim = { klaimId, temuanId, laporanId };
   confirmApproveModal.classList.add("show");
 };
 
@@ -170,36 +167,49 @@ document.getElementById("submitApproveBtn")?.addEventListener("click", async () 
   btn.textContent = "Memproses...";
   btn.disabled = true;
 
-  const { klaimId, temuanId } = currentApproveKlaim;
+  const { klaimId, temuanId, laporanId } = currentApproveKlaim;
 
   try {
-    const { data: dataKlaim, error: errKlaim } = await supabaseClient
+    // 1. Update status Klaim_Barang
+    const { data: dKlaim, error: errKlaim } = await supabaseClient
       .from("Klaim_Barang")
       .update({ status: "Selesai", Catatan_Status: null, NIP_Satpam: currentSatpamNIP })
       .eq("Id_Klaim", klaimId)
       .select();
     if (errKlaim) throw errKlaim;
-    if (!dataKlaim || dataKlaim.length === 0) {
-      throw new Error(
-        "Update Klaim_Barang tidak diterima database (kemungkinan izin/RLS). Hubungi admin."
-      );
-    }
+    if (!dKlaim || dKlaim.length === 0)
+      throw new Error("Gagal merubah status Klaim (Akses diblokir database).");
 
-    const { data: dataTemuan, error: errTemuan } = await supabaseClient
+    // 2. Update status Laporan_Temuan
+    const { data: dTemuan, error: errTemuan } = await supabaseClient
       .from("Laporan_Temuan")
       .update({ status: "Selesai" })
       .eq("Id_Temuan", temuanId)
       .select();
     if (errTemuan) throw errTemuan;
-    if (!dataTemuan || dataTemuan.length === 0) {
-      throw new Error(
-        "Update Laporan_Temuan tidak diterima database (kemungkinan izin/RLS). Hubungi admin."
-      );
+    if (!dTemuan || dTemuan.length === 0)
+      throw new Error("Gagal merubah status Temuan (Akses diblokir database).");
+
+    // 3. Update status Laporan_Hilang (Hanya jika laporan hilang dipilih saat klaim)
+    if (laporanId) {
+      const { data: dHilang, error: errHilang } = await supabaseClient
+        .from("Laporan_Hilang")
+        .update({ status: "Selesai" })
+        .eq("Id_Laporan", laporanId)
+        .select();
+      if (errHilang) throw errHilang;
+      if (!dHilang || dHilang.length === 0)
+        throw new Error("Gagal merubah status Laporan Hilang (Akses diblokir database).");
     }
 
+    // Eksekusi ulang penarikan data agar BARIS DI TABEL LANGSUNG HILANG
+    await loadData();
+
+    // Sembunyikan konfirmasi & Tampilkan Modal Berhasil
     confirmApproveModal.classList.remove("show");
     successApproveModal.classList.add("show");
   } catch (err) {
+    confirmApproveModal.classList.remove("show"); // Tutup pop-up loading
     showWarning("Gagal menyetujui klaim: " + err.message);
   } finally {
     btn.textContent = "Ya";
@@ -207,10 +217,9 @@ document.getElementById("submitApproveBtn")?.addEventListener("click", async () 
   }
 });
 
-document.getElementById("closeSuccessApproveBtn")?.addEventListener("click", async () => {
+document.getElementById("closeSuccessApproveBtn")?.addEventListener("click", () => {
   successApproveModal.classList.remove("show");
   currentApproveKlaim = null;
-  await loadData();
 });
 
 // ----------------------------------------------------
@@ -241,33 +250,40 @@ function renderKlaim(rows) {
       const bukti = row.Bukti_Kepemilikan
         ? `<img src="${escapeHtml(row.Bukti_Kepemilikan)}" alt="Bukti" />`
         : `<span style="color:#9aa3b8;">-</span>`;
-      return `<tr><td>${escapeHtml(row.Nama_Barang_Temuan)}</td><td>${escapeHtml(row.Nama_Lengkap_Mhs)}</td><td>${escapeHtml(row.No_Hp_Mhs)}</td><td>${bukti}</td><td class="action-cell"><button class="btn-approve" onclick="approveKlaim(${row.Id_Klaim}, ${row.Id_Temuan})" title="Setujui"><i class="fa-solid fa-check"></i></button><button class="btn-reject" onclick="openRejectKlaimModal(${row.Id_Klaim})" title="Tolak"><i class="fa-solid fa-xmark"></i></button></td></tr>`;
+
+      const idLaporanParam = row.Id_Laporan ? row.Id_Laporan : null;
+
+      return `<tr>
+        <td>${escapeHtml(row.Nama_Barang_Temuan)}</td>
+        <td>${escapeHtml(row.Nama_Lengkap_Mhs)}</td>
+        <td>${escapeHtml(row.No_Hp_Mhs)}</td>
+        <td>${bukti}</td>
+        <td class="action-cell">
+          <button class="btn-approve" onclick="approveKlaim(${row.Id_Klaim}, ${row.Id_Temuan}, ${idLaporanParam})" title="Setujui"><i class="fa-solid fa-check"></i></button>
+          <button class="btn-reject" onclick="openRejectKlaimModal(${row.Id_Klaim})" title="Tolak"><i class="fa-solid fa-xmark"></i></button>
+        </td>
+      </tr>`;
     })
     .join("");
 }
 
 async function loadData() {
   if (!supabaseClient) return;
-  temuanBody.innerHTML = `<tr class="empty-row"><td colspan="6">Memuat data...</td></tr>`;
-  klaimBody.innerHTML = `<tr class="empty-row"><td colspan="5">Memuat data...</td></tr>`;
 
   try {
-    // 1. Ambil semua klaim yang menunggu verifikasi
     const { data: klaim, error: errKlaim } = await supabaseClient
       .from("Klaim_Barang")
       .select("*")
-      .eq("status", "Menunggu Verifikasi");
+      .eq("status", "Menunggu Validasi");
     if (errKlaim) throw errKlaim;
 
-    // 2. Dari klaim yang ada, kumpulkan ID barang temuan yang relevan
-    const relevantTemuanIds =
-      klaim && klaim.length > 0 ? [...new Set(klaim.map((k) => k.Id_Temuan))] : [];
-
-    const { data: temuan } = await supabaseClient
+    const { data: temuan, error: errTemuan } = await supabaseClient
       .from("Laporan_Temuan")
       .select("*")
-      .in("Id_Temuan", relevantTemuanIds) // 3. Hanya ambil barang temuan yang ID-nya ada di daftar klaim
+      .eq("status", "Tersedia dipos")
       .order("created_at", { ascending: false });
+    if (errTemuan) throw errTemuan;
+
     if (temuan && temuan.length > 0) {
       const nims = [...new Set(temuan.map((t) => t.NIM_Penemu).filter(Boolean))];
       if (nims.length > 0) {
@@ -295,12 +311,19 @@ async function loadData() {
         mhsKlaimMap = mhsData || [];
       }
 
-      // Kita sudah punya data 'temuan' dari query sebelumnya, jadi bisa dipakai ulang
-      const temuanMap = temuan || [];
+      const relevantTemuanIds = [...new Set(klaim.map((k) => k.Id_Temuan))];
+      let temuanKlaimMap = [];
+      if (relevantTemuanIds.length > 0) {
+        const { data: temuanKlaim } = await supabaseClient
+          .from("Laporan_Temuan")
+          .select("Id_Temuan, Nama_Barang")
+          .in("Id_Temuan", relevantTemuanIds);
+        temuanKlaimMap = temuanKlaim || [];
+      }
 
       klaim.forEach((k) => {
         const mhs = mhsKlaimMap.find((m) => String(m.NIM) === String(k.NIM_Pengambil));
-        const brg = temuanMap.find((t) => String(t.Id_Temuan) === String(k.Id_Temuan));
+        const brg = temuanKlaimMap.find((t) => String(t.Id_Temuan) === String(k.Id_Temuan));
         k.Nama_Lengkap_Mhs = mhs ? mhs.Nama_Lengkap : "-";
         k.No_Hp_Mhs = mhs ? mhs.No_Hp : "-";
         k.Nama_Barang_Temuan = brg ? brg.Nama_Barang : "ID Barang Tidak Valid";
@@ -309,8 +332,6 @@ async function loadData() {
     renderKlaim(klaim);
   } catch (err) {
     showWarning("Gagal menarik data dari server: " + err.message);
-    temuanBody.innerHTML = `<tr class="empty-row"><td colspan="6">Gagal memuat data.</td></tr>`;
-    klaimBody.innerHTML = `<tr class="empty-row"><td colspan="5">Gagal memuat data.</td></tr>`;
   }
 }
 
@@ -320,6 +341,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (auth) {
       currentSatpamNIP = auth.satpam.NIP_Satpam;
       document.querySelectorAll(".username").forEach((el) => (el.textContent = currentSatpamNIP));
+
+      temuanBody.innerHTML = `<tr class="empty-row"><td colspan="6">Memuat data...</td></tr>`;
+      klaimBody.innerHTML = `<tr class="empty-row"><td colspan="5">Memuat data...</td></tr>`;
       await loadData();
     }
   }
